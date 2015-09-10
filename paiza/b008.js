@@ -9,6 +9,9 @@ window.addEventListener("load", function () {
 	doIt(inputAreaEle.value) ;
     }, false) ;
 
+    var outputEle = document.getElementById("output") ;
+    outputEle.innerHTML = "" ;
+
     function doIt(chunk){				     
 	if(chunk === undefined || chunk.search(/[^\s]+/m) === -1 ){
 	    // 空白以外の文字があるなら、id = "miku" の中身を代入
@@ -23,17 +26,33 @@ window.addEventListener("load", function () {
 	
 	/* 以下をコピーする */
 
-	/* 2015/         *
-	 * B00 :         */
-	chunk = chunk.replace(/([ \t]{1,})|\s+$/gim, "") ; // 半角スペースとTab、無駄な改行は削る
+	/* 2015/9/10         *
+	 * B008 : 与えられた表から、毎ライブで収益が出るように計画する */
+	chunk = chunk.replace(/\s+$/gim, "") ; // 無駄な改行は削る
 	var lines = chunk.toString().split("\n") ;
-	console.log("chunk = " + chunk) ;
-
-	for(var i = 0; i < lines.length ; ++i){
-	    var num = lines[i].match(/[0-9]+/) ;
-	    num = parseInt(num, 10) ;
-	    console.log(num) ;
+	for(var i = 0; i < lines.length; ++i ){
+	    lines[i] = lines[i].split(/\s+/) ;
 	}
+	// console.log("lines[1][2] = " + lines[1][2] + ", lines.length = " + lines.length) ;
+
+	var profit = 0 ;
+	if( lines[0][0] > 0 && lines[0][1] > 0 ){
+	    for(var i = 1; i < lines.length; ++i){
+		var oneLiveProfit = 0 ;
+		for(var j = 0; j < lines[i].length; ++j){
+		    oneLiveProfit += parseInt(lines[i][j], 10) ;
+		}
+		// console.log("oneLiveProfit = " + oneLiveProfit) ;
+		if(oneLiveProfit > 0){
+		    profit += oneLiveProfit ;
+		}
+	    }
+	}else{
+	    // N もしくは M が 0
+	    // console.log("N or M is 0") ;
+	}
+
+	console.log(profit) ;
 
 	/* 以上をコピーする */
 	

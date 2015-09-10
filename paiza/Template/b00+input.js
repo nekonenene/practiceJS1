@@ -9,6 +9,9 @@ window.addEventListener("load", function () {
 	doIt(inputAreaEle.value) ;
     }, false) ;
 
+    var outputEle = document.getElementById("output") ;
+    outputEle.innerHTML = "" ;
+
     function doIt(chunk){				     
 	if(chunk === undefined || chunk.search(/[^\s]+/m) === -1 ){
 	    // 空白以外の文字があるなら、id = "miku" の中身を代入
