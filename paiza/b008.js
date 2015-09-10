@@ -9,9 +9,6 @@ window.addEventListener("load", function () {
 	doIt(inputAreaEle.value) ;
     }, false) ;
 
-    var outputEle = document.getElementById("output") ;
-    outputEle.innerHTML = "" ;
-
     function doIt(chunk){				     
 	if(chunk === undefined || chunk.search(/[^\s]+/m) === -1 ){
 	    // 空白以外の文字があるなら、id = "miku" の中身を代入
@@ -23,13 +20,24 @@ window.addEventListener("load", function () {
 	    }
 	}
 
+	var outputEle = document.getElementById("output") ;
+	outputEle.innerHTML = "" ;
 	
 	/* 以下をコピーする */
 
 	/* 2015/9/10         *
 	 * B008 : 与えられた表から、毎ライブで収益が出るように計画する */
 	chunk = chunk.replace(/\s+$/gim, "") ; // 無駄な改行は削る
-	var lines = chunk.toString().split("\n") ;
+	var firstLine = [] ;
+	firstLine = String(chunk).match(/^.*/) ;
+	firstLine = firstLine.toString(10).split(/\s+/) ;
+	// console.log(firstLine) ;
+
+	var lines = new Array(firstLine[1] + 1) ;
+	for(var i = 0; i < lines.length; ++i ){
+	    lines[i] = new Array(firstLine[0]) ;
+	}	    
+	lines = chunk.toString(10).split("\n") ;
 	for(var i = 0; i < lines.length; ++i ){
 	    lines[i] = lines[i].split(/\s+/) ;
 	}
@@ -55,7 +63,9 @@ window.addEventListener("load", function () {
 	console.log(profit) ;
 
 	/* 以上をコピーする */
-	
+
+	outputEle.innerHTML += profit ;
+
 	console.log("end") ;
 
 	return 0 ;
