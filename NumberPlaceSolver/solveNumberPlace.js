@@ -1,5 +1,8 @@
 window.addEventListener("load", function () {
 
+    console.time("windowLoadFunctions") ;
+    console.log(parseInt("")) ;
+
     /* フォームと実行ボタンを HTML に書き込む */
     var inputFormNumPlaceEle = document.getElementById("inputFormNumPlace") ;
     var strForm = "" ;
@@ -27,23 +30,16 @@ window.addEventListener("load", function () {
 	}
     }
 
-    /* 実行ボタンを押された時の挙動を登録 */
+    /* 実行ボタンを押された時の挙動の登録 */
     var submitNumbersButtonEle =
 	    document.getElementById("submitNumbersButton") ;
     submitNumbersButtonEle.addEventListener("click", function(){
-	submitNumbers() ;
+
+	doWhenPushedSubmitNumbersButton() ;
+
     }, false) ;
 
-
-    /* 下のテキストエリア : 今は使わない */
-    var submitTextAreaButtonEle =
-	    document.getElementById("submitTextAreaButton") ;
-    submitTextAreaButtonEle.addEventListener("click", function(){
-	var inputTextAreaEle = document.getElementById("inputTextArea") ;
-	console.log("input = " + inputTextAreaEle.value) ;
-    }, false) ;
-
-    solveNumberPlace() ;
+    console.timeEnd("windowLoadFunctions") ;
     
 }, false) ;
 
@@ -52,7 +48,7 @@ window.addEventListener("load", function () {
 function nextFrame(num) {
     if(num.value.length >= num.size){
 	// console.log(num) ;
-	var numFormIndex = Number( num.id.match(/[0-9]+$/) ) ;
+	var numFormIndex = parseInt( num.id.match(/[0-9]+$/) ) ;
 	// console.log(numFormIndex) ;
 	try{
 	    document.numPlaceForm.numPlace[numFormIndex + 1].focus() ;
@@ -63,8 +59,42 @@ function nextFrame(num) {
     }
 } ;
 
+/* 実行ボタンを押されたら、フォームから値を受け取り配列にし、
+ * 答えを answerNumbersArray に入れて、フォームに突っ込んで返す。 */
+function doWhenPushedSubmitNumbersButton(){
+    var inputNumbersArray = submitNumbers() ;
+    var answerNumbersArray = solveNumberPlace(inputNumbersArray) ;
+    // console.log("answerNumbersArray = " + answerNumbersArray) ;
 
-/* 実行ボタンを押されたら、フォームの数字を取得し、配列 numPlaceNumbers にひとつずつ入れる
+    if(answerNumbersArray !== false){
+
+	var numPlaceEles = document.getElementsByClassName("numPlace") ;
+	for(var i=0; i<81; ++i){
+	    numPlaceEles[i].value = answerNumbersArray[i] ;
+	}
+
+	/* ついでに、コピーしやすいようテキストエリアにも答えを入れてあげる */
+	var inputTextAreaEle = document.getElementById("inputTextArea") ;
+	var str = "" ;
+	for(var i = 0; i < 9; ++i){
+	    str += answerNumbersArray.slice( (i * 9), (i * 9 + 8) ) ;
+	    str += "\n" ;
+	}
+	inputTextAreaEle.value = str ;
+
+	var outputEle = document.getElementById("output") ;
+	outputEle.innerHTML = str.replace(/[\n]/g, "<br>") ;
+
+    }else{
+	var str = "解けませんでした。" ;
+	console.log(str) ;
+	document.getElementById("inputTextArea").value = str ;
+	document.getElementById("output").innerHTML = str ;
+    }
+
+} ;
+
+/* フォームの数字を取得し、配列 numPlaceNumbers にひとつずつ入れる
  * 1～9 以外の値だったら代入せず、ボックスの中も空白にする */
 function submitNumbers(){
     // console.log("押されました") ;
@@ -85,7 +115,7 @@ function submitNumbers(){
 	}
 	numPlaceNumbers.push(pushValue) ;
     }
-    console.log("input = " + numPlaceNumbers) ;
+    // console.log("input = " + numPlaceNumbers) ;
 
     return numPlaceNumbers ;
 } ;
@@ -94,7 +124,7 @@ function submitNumbers(){
 /* 与えられた 81 個の数列から、ナンバープレースを解く */
 function solveNumberPlace(arr){
     console.time("solveNumberPlaceTimer") ;
-    console.log("start") ;
+    console.log("solve start") ;
 
     var numbersDoubleArray = new Array(9) ;
     for(var i=0; i<numbersDoubleArray.length; ++i){
@@ -102,6 +132,7 @@ function solveNumberPlace(arr){
     }
 
     // test array
+    if(arr === undefined){
     arr = [
     	, ,8,2, ,3,1, , ,
     	, ,6,1, ,5,8, , ,
@@ -112,11 +143,22 @@ function solveNumberPlace(arr){
     	8,3, , , , , ,7,6,
     	, ,5,3, ,4,9, , ,
     	, ,9,7, ,8,5, ,  ] ;
+    }
+    // var answer = [
+    // 	[9,7,8,2,4,3,1,6,5],
+    // 	[3,2,6,1,9,5,8,4,7],
+    // 	[1,5,4,8,7,6,2,3,9],
+    // 	[4,1,2,6,3,9,7,5,8],
+    // 	[5,8,3,4,2,7,6,9,1],
+    // 	[6,9,7,5,8,1,3,2,4],
+    // 	[8,3,1,9,5,2,4,7,6],
+    // 	[7,6,5,3,1,4,9,8,2],
+    // 	[2,4,9,7,6,8,5,1,3] ] ;
 
     for(var i=0; i<9; ++i){
 	for(var j=0; j<9; ++j){
 	    numbersDoubleArray[i][j] = { num : arr[i*9 + j], done : false } ;
-	    if(numbersDoubleArray[i][j].num !== undefined){
+	    if(numbersDoubleArray[i][j].num !== undefined && numbersDoubleArray[i][j].num != ""){
 		numbersDoubleArray[i][j].done = true ;
 		// console.log( (i*9+j) + " : " + numbersDoubleArray[i][j].num) ;
 	    }else{
@@ -131,79 +173,94 @@ function solveNumberPlace(arr){
 	console.log("入力された問題は、数字の重複があるため解けません"
 		    + "; i : " + isLegal.errorI
 		    + ", j : " + isLegal.errorJ ) ;
-	return (-1) ;
+	return false ;
     }
 
     /* 候補をしぼっていき、候補が２個に定まったら、試しにどちらかを置いて進める。 *
      * ダメだったら違う方の数値を置いてやり直す。 */
-    for(var i=0; i<9; ++i){
-	for(var j=0; j<9; j++){
-	    if(numbersDoubleArray[i][j].done === false){
-		for(var m=0; m<9; ++m){
-		    /* タテ・ヨコの重複する数値は候補 candidate から消す */
-		    if( (numbersDoubleArray[i][m].done === true) && (m !== j) ){
-			numbersDoubleArray[i][j].candidate =
-			    numbersDoubleArray[i][j].candidate.replace( RegExp(numbersDoubleArray[i][m].num), "" ) ;
-		    }
-		    if( (numbersDoubleArray[m][j].done === true) && (m !== i) ){
-			numbersDoubleArray[i][j].candidate =
-			    numbersDoubleArray[i][j].candidate.replace( RegExp(numbersDoubleArray[m][j].num), "" ) ;
-		    }
-		}
-		/* nineBox ごとの重複を候補から外す */
-		var mStart = Math.floor(i / 3) * 3 ;
-		var nStart = Math.floor(j / 3) * 3 ;
-		for(var m = mStart; m < mStart + 3; ++m){
-		    for(var n = nStart; n < nStart + 3; ++n){
-			if( (numbersDoubleArray[m][n].done === true) && (m !== i && n !== j) ){
+    var changeCandidate = -1 ;
+    while(changeCandidate !== 0){
+	changeCandidate = 0 ;  // 候補が削られたとき ++changeCandidate
+	
+	for(var i=0; i<9; ++i){
+	    for(var j=0; j<9; ++j){
+		if(numbersDoubleArray[i][j].done === false){
+		    for(var m=0; m<9; ++m){
+			/* タテ・ヨコの重複する数値は候補 candidate から消す */
+			if( (numbersDoubleArray[i][m].done === true) && (m !== j) ){
 			    numbersDoubleArray[i][j].candidate =
-				numbersDoubleArray[i][j].candidate.replace( RegExp(numbersDoubleArray[m][n].num), "" ) ;
+				numbersDoubleArray[i][j].candidate.replace( RegExp(numbersDoubleArray[i][m].num), "" ) ;
+			    ++changeCandidate ;
+			}
+			if( (numbersDoubleArray[m][j].done === true) && (m !== i) ){
+			    numbersDoubleArray[i][j].candidate =
+				numbersDoubleArray[i][j].candidate.replace( RegExp(numbersDoubleArray[m][j].num), "" ) ;
+			    ++changeCandidate ;
 			}
 		    }
+		    /* nineBox ごとの重複を候補から外す */
+		    var mStart = Math.floor(i / 3) * 3 ;
+		    var nStart = Math.floor(j / 3) * 3 ;
+		    for(var m = mStart; m < mStart + 3; ++m){
+			for(var n = nStart; n < nStart + 3; ++n){
+			    if( (numbersDoubleArray[m][n].done === true) && (m !== i && n !== j) ){
+				numbersDoubleArray[i][j].candidate =
+				    numbersDoubleArray[i][j].candidate.replace
+				( RegExp(numbersDoubleArray[m][n].num), "" ) ;
+				++changeCandidate ;
+			    }
+			}
+		    }
+
+		    // numbersDoubleArray[i][j].num =
+		    // 	parseInt(numbersDoubleArray[i][j].candidate) ;
+		    
+		    // 候補が削られ、一意に定まったならそれを代入
+		    if(String(numbersDoubleArray[i][j].candidate).length === 1){
+			numbersDoubleArray[i][j].num =
+			    parseInt(numbersDoubleArray[i][j].candidate) ;
+			numbersDoubleArray[i][j].done = true ;
+			// console.log("decide One: " + numbersDoubleArray[i][j].candidate + ", i: " + i + ", j: " + j + " " + numbersDoubleArray[i][j].done) ;
+		    }
 		}
 
-		numbersDoubleArray[i][j].num =
-		    Number(numbersDoubleArray[i][j].candidate) ;
-
-	    }
-
-	    // 候補が削られ、一意に定まったならそれを代入
-	    if( String(numbersDoubleArray[i][j].candidate).length === 1 ){
-		numbersDoubleArray[i][j].num =
-		    Number(numbersDoubleArray[i][j].candidate) ;
-		numbersDoubleArray[i][j].done = true ;
 	    }
 	}
     }
 
     /* コンソールに結果を出力 */
+    var doneAmount = 0 ;
     for(var i=0; i<9; ++i){
 	for(var j=0; j<9; ++j){
-	    if(numbersDoubleArray[i][j].done === false){
+	    if(numbersDoubleArray[i][j].done === true){
+		++doneAmount ;
+		// console.log( "i : " + i + ", j : " + j
+		// 		+ " ::: " + numbersDoubleArray[i][j].num
+		// 		+ " : " + numbersDoubleArray[i][j].done ) ;
+	    }else{
 		numbersDoubleArray[i][j].num =
-		    Number(numbersDoubleArray[i][j].candidate) ;
+		    parseInt(numbersDoubleArray[i][j].candidate) ;
 	    }
-	    console.log( "i : " + i + ", j : " + j
-			+ " ::: " + numbersDoubleArray[i][j].num
-			+ " : " + numbersDoubleArray[i][j].done ) ;
 	}
     }
 
-    var answer = [
-	[9,7,8,2,4,3,1,6,5],
-	[3,2,6,1,9,5,8,4,7],
-	[1,5,4,8,7,6,2,3,9],
-	[4,1,2,6,3,9,7,5,8],
-	[5,8,3,4,2,7,6,9,1],
-	[6,9,7,5,8,1,3,2,4],
-	[8,3,1,9,5,2,4,7,6],
-	[7,6,5,3,1,4,9,8,2],
-	[2,4,9,7,6,8,5,1,3] ] ;
-    
-    
+    // arr に入れて送り返してあげる
+    if(doneAmount === 81){
+	var arr = [] ;
+	for(var i=0; i<9; ++i){
+	    for(var j=0; j<9; ++j){
+		arr[i*9 +j] = numbersDoubleArray[i][j].num ;
+		// console.log(numbersDoubleArray[i][j].num) ;
+		// console.log(arr) ;
+	    }
+	}
+    }else{
+	return false ;
+    }
+		
     console.timeEnd("solveNumberPlaceTimer") ;
     
-    return (1) ;
+    return arr ;
 } ;
 
 
@@ -262,7 +319,6 @@ function isTrueNumberPlace(doubleArr){
 			return resultArray ;
 		    }
 	    }
-
 	}
     }
     
