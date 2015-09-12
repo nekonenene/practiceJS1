@@ -112,16 +112,6 @@ function solveNumberPlace(arr){
     	8,3, , , , , ,7,6,
     	 , ,5,3, ,4,9, , ,
     	 , ,9,7, ,8,5, ,  ] ;
-    // numbersDoubleArray = [
-    // 	[ , ,8,2, ,3,1, , ],
-    // 	[ , ,6,1, ,5,8, , ],
-    // 	[1,5, , , , , ,3,9],
-    // 	[4,1, ,6, ,9, ,5,8],
-    // 	[ , , , ,2, , , , ],
-    // 	[6,9, ,5, ,1, ,2,4],
-    // 	[8,3, , , , , ,7,6],
-    // 	[ , ,5,3, ,4,9, , ],
-    // 	[ , ,9,7, ,8,5, , ] ] ;
 
     for(var i=0; i<9; ++i){
 	for(var j=0; j<9; ++j){
@@ -134,8 +124,11 @@ function solveNumberPlace(arr){
 	    }
 	}
     }
-    if(isTrueNumberPlace(numbersDoubleArray) === false){
-	console.log("不正な値です") ;
+    var isLegal = isTrueNumberPlace(numbersDoubleArray) ;
+    if(isLegal.result === false){
+	console.log("入力された問題は、数字の重複があるため解けません"
+		    + "\ti : " + isLegal.errorI
+		    + ", j : " + isLegal.errorJ ) ;
 	return (-1) ;
     }
 
@@ -160,7 +153,10 @@ function solveNumberPlace(arr){
 /* 正しく 1~9 の組み合わせがおこなわれてるかチェックする */
 function isTrueNumberPlace(doubleArr){
 
+    var resultArray = [] ;
+
     // 縦もしくは横に数値の重複がないか調べる
+    var nineBox = new Array(9) ;
     for(var i=0; i<9; ++i){
 	var line = "" ;
 	var row  = "" ;
@@ -171,22 +167,47 @@ function isTrueNumberPlace(doubleArr){
 		    line += String(doubleArr[i][j].num) ;
 		    // console.log(line) ;
 		}else{
-		    console.log("line error") ;
-		    return false ;
+		    console.log("line Error") ;
+		    resultArray.result = false ;
+		    resultArray.errorI = i ;
+		    resultArray.errorJ = j ;
+		    
+		    return resultArray ;
 		}
+
+		/* ここで 3x3 マスの重複について調べる */
+		var region = Math.floor(i / 3) * 3 + Math.floor(j / 3) ;
+		if( nineBox[region] === undefined ||
+		     String(doubleArr[i][j].num).search(RegExp("[" + nineBox[region] + "]")) === -1 ){
+		    nineBox[region] += String(doubleArr[i][j].num) ;
+		    // console.log(nineBox[region]) ;
+		}else{
+		    console.log("Box Error") ;
+		    resultArray.result = false ;
+		    resultArray.errorI = i ;
+		    resultArray.errorJ = j ;
+		    
+		    return resultArray ;
+		}
+		
 	    }
 	    if(doubleArr[j][i].num !== undefined){
 		if( row === "" ||
 		    String(doubleArr[j][i].num).search(RegExp("[" + row + "]")) === -1 ){
 		    row += String(doubleArr[j][i].num) ;
 		}else{
-		    console.log("row error") ;
-		    return false ;
+		    console.log("row Error") ;
+		    resultArray.result = false ;
+		    resultArray.errorI = j ;
+		    resultArray.errorJ = i ;
+
+		    return resultArray ;
 		}
 	    }
+
 	}
     }
     
-    
-    return true ;
+    resultArray.result = true ;
+    return resultArray ;
 } ;
