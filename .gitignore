@@ -1,8 +1,8 @@
 
 
 *.mp3
-
-
+*.ogg
+*.wav
 
 
 ### /Users/hnw/.gitignore-boilerplates/Global/Windows.gitignore
