@@ -1,17 +1,4 @@
-
-var hoge = function(foo){
-    this.bar = foo ;
-    console.log(this.bar + "baz1" ) ;
-    this.out = function(){
-	console.log( this.bar + "baz2" ) ;
-    } ;
-    return this.out ;
-} ;
-
-
 window.addEventListener("load", function () {
-
-    hoge(100 + this.out) ;
 
     /* フォームと実行ボタンを HTML に書き込む */
     var inputFormNumPlaceEle = document.getElementById("inputFormNumPlace") ;
@@ -103,8 +90,9 @@ function submitNumbers(){
     return numPlaceNumbers ;
 } ;
 
+
 /* 与えられた 81 個の数列から、ナンバープレースを解く */
-function solveNumberPlace(){
+function solveNumberPlace(arr){
     console.time("solveNumberPlaceTimer") ;
     console.log("start") ;
 
@@ -114,16 +102,42 @@ function solveNumberPlace(){
     }
 
     // test array
-    numbersDoubleArray = [
-	[ , ,8,2, ,3,1, , ],
-	[ , ,6,1, ,5,8, , ],
-	[1,5, , , , , ,3,9],
-	[4,1, ,6, ,9, ,5,8],
-	[ , , , ,2, , , , ],
-	[6,9, ,5, ,1, ,2,4],
-	[8,3, , , , , ,7,6],
-	[ , ,5,3, ,4,9, , ],
-	[ , ,9,7, ,8,5, , ] ] ;
+    arr = [
+    	 , ,8,2, ,3,1, , ,
+    	 , ,6,1, ,5,8, , ,
+    	1,5, , , , , ,3,9,
+    	4,1, ,6, ,9, ,5,8,
+    	 , , , ,2, , , , ,
+    	6,9, ,5, ,1, ,2,4,
+    	8,3, , , , , ,7,6,
+    	 , ,5,3, ,4,9, , ,
+    	 , ,9,7, ,8,5, ,  ] ;
+    // numbersDoubleArray = [
+    // 	[ , ,8,2, ,3,1, , ],
+    // 	[ , ,6,1, ,5,8, , ],
+    // 	[1,5, , , , , ,3,9],
+    // 	[4,1, ,6, ,9, ,5,8],
+    // 	[ , , , ,2, , , , ],
+    // 	[6,9, ,5, ,1, ,2,4],
+    // 	[8,3, , , , , ,7,6],
+    // 	[ , ,5,3, ,4,9, , ],
+    // 	[ , ,9,7, ,8,5, , ] ] ;
+
+    for(var i=0; i<9; ++i){
+	for(var j=0; j<9; ++j){
+	    numbersDoubleArray[i][j] = { num : arr[i*9 + j], done : false } ;
+	    if(numbersDoubleArray[i][j].num !== undefined){
+		numbersDoubleArray[i][j].done = true ;
+		// console.log( (i*9+j) + " : " + numbersDoubleArray[i][j].num) ;
+	    }else{
+		numbersDoubleArray[i][j].candidate = "123456789" ;
+	    }
+	}
+    }
+    if(isTrueNumberPlace(numbersDoubleArray) === false){
+	console.log("不正な値です") ;
+	return (-1) ;
+    }
 
     var answer = [
 	[9,7,8,2,4,3,1,6,5],
@@ -135,7 +149,44 @@ function solveNumberPlace(){
 	[8,3,1,9,5,2,4,7,6],
 	[7,6,5,3,1,4,9,8,2],
 	[2,4,9,7,6,8,5,1,3] ] ;
-
+    
     
     console.timeEnd("solveNumberPlaceTimer") ;
+    
+    return (1) ;
+} ;
+
+
+/* 正しく 1~9 の組み合わせがおこなわれてるかチェックする */
+function isTrueNumberPlace(doubleArr){
+
+    // 縦もしくは横に数値の重複がないか調べる
+    for(var i=0; i<9; ++i){
+	var line = "" ;
+	var row  = "" ;
+	for(var j=0; j<9; j++){
+	    if(doubleArr[i][j].num !== undefined){
+		if(  line === "" ||
+		     String(doubleArr[i][j].num).search(RegExp("[" + line + "]")) === -1 ){
+		    line += String(doubleArr[i][j].num) ;
+		    // console.log(line) ;
+		}else{
+		    console.log("line error") ;
+		    return false ;
+		}
+	    }
+	    if(doubleArr[j][i].num !== undefined){
+		if( row === "" ||
+		    String(doubleArr[j][i].num).search(RegExp("[" + row + "]")) === -1 ){
+		    row += String(doubleArr[j][i].num) ;
+		}else{
+		    console.log("row error") ;
+		    return false ;
+		}
+	    }
+	}
+    }
+    
+    
+    return true ;
 } ;
