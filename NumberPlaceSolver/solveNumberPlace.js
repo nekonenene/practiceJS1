@@ -10,7 +10,7 @@ window.addEventListener("load", function () {
 	}
 	strForm += "<br>" ;
     }
-    // 82th hidden form
+    /* 82th hidden form */
     // strForm += "<input hidden=\"true\" type=\"text\" name=\"numPlace\" class=\"numPlace\" maxlength=\"1\" size=\"1\" pattern=\"[1-9]?\" tabIndex=\"" + i*9 + "\">" ;
 
     strForm += "<input type=\"button\" id=\"submitNumbersButton\" name=\"button\" value=\"実行\" style=\"margin:3px 0;\">" ;
@@ -103,15 +103,15 @@ function solveNumberPlace(arr){
 
     // test array
     arr = [
-    	 , ,8,2, ,3,1, , ,
-    	 , ,6,1, ,5,8, , ,
+    	, ,8,2, ,3,1, , ,
+    	, ,6,1, ,5,8, , ,
     	1,5, , , , , ,3,9,
     	4,1, ,6, ,9, ,5,8,
-    	 , , , ,2, , , , ,
+    	, , , ,2, , , , ,
     	6,9, ,5, ,1, ,2,4,
     	8,3, , , , , ,7,6,
-    	 , ,5,3, ,4,9, , ,
-    	 , ,9,7, ,8,5, ,  ] ;
+    	, ,5,3, ,4,9, , ,
+    	, ,9,7, ,8,5, ,  ] ;
 
     for(var i=0; i<9; ++i){
 	for(var j=0; j<9; ++j){
@@ -124,12 +124,69 @@ function solveNumberPlace(arr){
 	    }
 	}
     }
+
+    /* function isTrueNumberPlace を使い、ちゃんと解ける問題なのかチェック */
     var isLegal = isTrueNumberPlace(numbersDoubleArray) ;
     if(isLegal.result === false){
 	console.log("入力された問題は、数字の重複があるため解けません"
-		    + "\ti : " + isLegal.errorI
+		    + "; i : " + isLegal.errorI
 		    + ", j : " + isLegal.errorJ ) ;
 	return (-1) ;
+    }
+
+    /* 候補をしぼっていき、候補が２個に定まったら、試しにどちらかを置いて進める。 *
+     * ダメだったら違う方の数値を置いてやり直す。 */
+    for(var i=0; i<9; ++i){
+	for(var j=0; j<9; j++){
+	    if(numbersDoubleArray[i][j].done === false){
+		for(var m=0; m<9; ++m){
+		    /* タテ・ヨコの重複する数値は候補 candidate から消す */
+		    if( (numbersDoubleArray[i][m].done === true) && (m !== j) ){
+			numbersDoubleArray[i][j].candidate =
+			    numbersDoubleArray[i][j].candidate.replace( RegExp(numbersDoubleArray[i][m].num), "" ) ;
+		    }
+		    if( (numbersDoubleArray[m][j].done === true) && (m !== i) ){
+			numbersDoubleArray[i][j].candidate =
+			    numbersDoubleArray[i][j].candidate.replace( RegExp(numbersDoubleArray[m][j].num), "" ) ;
+		    }
+		}
+		/* nineBox ごとの重複を候補から外す */
+		var mStart = Math.floor(i / 3) * 3 ;
+		var nStart = Math.floor(j / 3) * 3 ;
+		for(var m = mStart; m < mStart + 3; ++m){
+		    for(var n = nStart; n < nStart + 3; ++n){
+			if( (numbersDoubleArray[m][n].done === true) && (m !== i && n !== j) ){
+			    numbersDoubleArray[i][j].candidate =
+				numbersDoubleArray[i][j].candidate.replace( RegExp(numbersDoubleArray[m][n].num), "" ) ;
+			}
+		    }
+		}
+
+		numbersDoubleArray[i][j].num =
+		    Number(numbersDoubleArray[i][j].candidate) ;
+
+	    }
+
+	    // 候補が削られ、一意に定まったならそれを代入
+	    if( String(numbersDoubleArray[i][j].candidate).length === 1 ){
+		numbersDoubleArray[i][j].num =
+		    Number(numbersDoubleArray[i][j].candidate) ;
+		numbersDoubleArray[i][j].done = true ;
+	    }
+	}
+    }
+
+    /* コンソールに結果を出力 */
+    for(var i=0; i<9; ++i){
+	for(var j=0; j<9; ++j){
+	    if(numbersDoubleArray[i][j].done === false){
+		numbersDoubleArray[i][j].num =
+		    Number(numbersDoubleArray[i][j].candidate) ;
+	    }
+	    console.log( "i : " + i + ", j : " + j
+			+ " ::: " + numbersDoubleArray[i][j].num
+			+ " : " + numbersDoubleArray[i][j].done ) ;
+	}
     }
 
     var answer = [
@@ -150,12 +207,13 @@ function solveNumberPlace(arr){
 } ;
 
 
+
 /* 正しく 1~9 の組み合わせがおこなわれてるかチェックする */
 function isTrueNumberPlace(doubleArr){
 
     var resultArray = [] ;
 
-    // 縦もしくは横に数値の重複がないか調べる
+    /* 縦もしくは横に数値の重複がないか調べる */
     var nineBox = new Array(9) ;
     for(var i=0; i<9; ++i){
 	var line = "" ;
@@ -164,45 +222,45 @@ function isTrueNumberPlace(doubleArr){
 	    if(doubleArr[i][j].num !== undefined){
 		if(  line === "" ||
 		     String(doubleArr[i][j].num).search(RegExp("[" + line + "]")) === -1 ){
-		    line += String(doubleArr[i][j].num) ;
-		    // console.log(line) ;
-		}else{
-		    console.log("line Error") ;
-		    resultArray.result = false ;
-		    resultArray.errorI = i ;
-		    resultArray.errorJ = j ;
-		    
-		    return resultArray ;
-		}
+			 line += String(doubleArr[i][j].num) ;
+			 // console.log(line) ;
+		     }else{
+			 console.log("line Error") ;
+			 resultArray.result = false ;
+			 resultArray.errorI = i ;
+			 resultArray.errorJ = j ;
+			 
+			 return resultArray ;
+		     }
 
 		/* ここで 3x3 マスの重複について調べる */
 		var region = Math.floor(i / 3) * 3 + Math.floor(j / 3) ;
 		if( nineBox[region] === undefined ||
-		     String(doubleArr[i][j].num).search(RegExp("[" + nineBox[region] + "]")) === -1 ){
-		    nineBox[region] += String(doubleArr[i][j].num) ;
-		    // console.log(nineBox[region]) ;
-		}else{
-		    console.log("Box Error") ;
-		    resultArray.result = false ;
-		    resultArray.errorI = i ;
-		    resultArray.errorJ = j ;
-		    
-		    return resultArray ;
-		}
+		    String(doubleArr[i][j].num).search(RegExp("[" + nineBox[region] + "]")) === -1 ){
+			nineBox[region] += String(doubleArr[i][j].num) ;
+			// console.log(nineBox[region]) ;
+		    }else{
+			console.log("Box Error") ;
+			resultArray.result = false ;
+			resultArray.errorI = i ;
+			resultArray.errorJ = j ;
+			
+			return resultArray ;
+		    }
 		
 	    }
 	    if(doubleArr[j][i].num !== undefined){
 		if( row === "" ||
 		    String(doubleArr[j][i].num).search(RegExp("[" + row + "]")) === -1 ){
-		    row += String(doubleArr[j][i].num) ;
-		}else{
-		    console.log("row Error") ;
-		    resultArray.result = false ;
-		    resultArray.errorI = j ;
-		    resultArray.errorJ = i ;
+			row += String(doubleArr[j][i].num) ;
+		    }else{
+			console.log("row Error") ;
+			resultArray.result = false ;
+			resultArray.errorI = j ;
+			resultArray.errorJ = i ;
 
-		    return resultArray ;
-		}
+			return resultArray ;
+		    }
 	    }
 
 	}
