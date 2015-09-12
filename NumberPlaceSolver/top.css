@@ -52,6 +52,7 @@ body {
 input.numPlace{
 		width : 4ch ;
 		margin : 4px 2px ;
+		background-color : #dfeeff ;
 }
 
 body {  /* 上下左右に余白が入らないように */
