@@ -104,7 +104,7 @@ function doWhenPushedSubmitNumbersButton(){
 	}
 
 	for(var i = 0; i < 9; ++i){
-	    str += answerNumbersArray.slice( (i * 9), (i * 9 + 8) ) ;
+	    str += answerNumbersArray.slice( (i * 9), ((i+1) * 9) ) ;
 	    str += "\n" ;
 	}
 	inputTextAreaEle.value = str ;
