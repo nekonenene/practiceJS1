@@ -8,12 +8,15 @@ window.addEventListener("load", function () {
     strForm += "<form name=\"numPlaceForm\" accept-charset=\"utf-8\" style=\"margin:20px 15px;\">" ;
     for(var i=0; i<9; ++i){
 	for(var j=0; j<9; ++j){
-	    strForm += "<input type=\"text\" name=\"numPlace\" class=\"numPlace\" maxlength=\"1\" size=\"1\" pattern=\"[1-9]?\" id=\"numPlaceForm" + (i*9 + j) + "\">" ;
+	    strForm += "<input type=\"text\" name=\"numPlace\" class=\"numPlace\" \
+ maxlength=\"1\" size=\"1\" pattern=\"[1-9]?\" id=\"numPlaceForm" + (i*9 + j) + "\">" ;
 	}
 	strForm += "<br>" ;
     }
-    /* 82th hidden form */
-    // strForm += "<input hidden=\"true\" type=\"text\" name=\"numPlace\" class=\"numPlace\" maxlength=\"1\" size=\"1\" pattern=\"[1-9]?\" tabIndex=\"" + i*9 + "\">" ;
+    /* 82th hidden form
+     strForm += "<input hidden=\"true\" type=\"text\" name=\"numPlace\" class=\"numPlace\" \
+     maxlength=\"1\" size=\"1\" pattern=\"[1-9]?\" tabIndex=\"" + i*9 + "\">" ;
+     */
 
     strForm += "<input type=\"button\" id=\"submitNumbersButton\" name=\"button\" value=\"実行\" style=\"margin:3px 0;\">" ;
     strForm += "<input type=\"button\" id=\"deleteNumbersButton\" name=\"button\" value=\"消す\" style=\"margin:3px 0 0 8px;\">" ;
