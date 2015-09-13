@@ -50,8 +50,6 @@ window.addEventListener("load", function () {
 
     console.timeEnd("windowLoadFunctions") ;
 
-    doWhenPushedSubmitNumbersButton() ;
-
 }, false) ;
 
 
@@ -91,9 +89,7 @@ function doWhenPushedSubmitNumbersButton(){
     outputEle.innerHTML = str ;
 
     var inputNumbersArray = submitNumbers() ;
-    var answerNumbersArray = solveNumberPlace() ;
-    // TODO: inputNumbersArray を すぐ上１行のカッコ内に入れる
-    // console.log("answerNumbersArray = " + answerNumbersArray) ;
+    var answerNumbersArray = solveNumberPlace(inputNumbersArray) ;
 
     var numPlaceEles = document.getElementsByClassName("numPlace") ;
 
@@ -168,16 +164,16 @@ function solveNumberPlace(arr){
 
     // test array
     if(arr === undefined){
-	arr = [
-    	     , ,8,2, ,3,1, , ,
-    	     , ,6,1, ,5,8, , ,
-    	    1,5, , , , , ,3,9,
-    	    4,1, ,6, ,9, ,5,8,
-    	     , , , ,2, , , , ,
-    	    6,9, ,5, ,1, ,2,4,
-    	    8,3, , , , , ,7,6,
-    	     , ,5,3, ,4,9, , ,
-    	     , ,9,7, ,8,5, ,  ] ;
+	// arr = [
+    	//      , ,8,2, ,3,1, , ,
+    	//      , ,6,1, ,5,8, , ,
+    	//     1,5, , , , , ,3,9,
+    	//     4,1, ,6, ,9, ,5,8,
+    	//      , , , ,2, , , , ,
+    	//     6,9, ,5, ,1, ,2,4,
+    	//     8,3, , , , , ,7,6,
+    	//      , ,5,3, ,4,9, , ,
+    	//      , ,9,7, ,8,5, ,  ] ;
 
 	// 重複を見るだけでは解けない高度な問題
 	arr = [
@@ -326,7 +322,6 @@ function reduceCandidates(doubleArr){
 	
 	for(var i=0; i<9; ++i){
 	    for(var j=0; j<9; ++j){
-		console.log(doubleArr[i][j].done) ;
 		if(doubleArr[i][j].done === false){
 		    for(var m=0; m<9; ++m){
 			/* タテ・ヨコの重複する数値は候補 candidate から消す */
