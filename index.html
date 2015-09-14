@@ -3,61 +3,61 @@
 <html>
 
 <head>
-    <meta name="Author" content="nekonenene">
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <link rel="stylesheet" type="text/css" href="css/index.css">
+		<meta name="Author" content="nekonenene">
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="css/index.css">
 
-    <!--
-  Customize this policy to fit your own app's needs. For more guidance, see:
-  https://github.com/apache/cordova-plugin-whitelist/blob/master/README.md#content-security-policy
-  Some notes:
-  * gap: is required only on iOS (when using UIWebView) and is needed for JS->native communication
-  * https://ssl.gstatic.com is required only on Android and is needed for TalkBack to function properly
-  * Disables use of inline scripts in order to mitigate risk of XSS vulnerabilities. To change this:
-  * Enable inline JS: add 'unsafe-inline' to default-src
-  -->
+		<!--
+	Customize this policy to fit your own app's needs. For more guidance, see:
+	https://github.com/apache/cordova-plugin-whitelist/blob/master/README.md#content-security-policy
+	Some notes:
+	* gap: is required only on iOS (when using UIWebView) and is needed for JS->native communication
+	* https://ssl.gstatic.com is required only on Android and is needed for TalkBack to function properly
+	* Disables use of inline scripts in order to mitigate risk of XSS vulnerabilities. To change this:
+	* Enable inline JS: add 'unsafe-inline' to default-src
+	-->
 
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *">
-    <meta name="format-detection" content="telephone=no">
-    <meta name="msapplication-tap-highlight" content="no">
-    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
+		<meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *">
+		<meta name="format-detection" content="telephone=no">
+		<meta name="msapplication-tap-highlight" content="no">
+		<meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
 
-    <title>Hello World</title>
+		<title>Hello World</title>
 
 </head>
 
 <body>
-    <h1>Hello World!!! </h1>
+		<h1>Hello World!!! </h1>
 
-    <!--
-   <div class="app">
-   <h1>Apache Cordova</h1>
-   <div id="deviceready" class="blink">
-   <p class="event listening">Connecting to Device</p>
-   <p class="event received">Device is Ready</p>
-   </div>
-   </div>
+		<!--
+	 <div class="app">
+	 <h1>Apache Cordova</h1>
+	 <div id="deviceready" class="blink">
+	 <p class="event listening">Connecting to Device</p>
+	 <p class="event received">Device is Ready</p>
+	 </div>
+	 </div>
 	 -->
-    <div class="app">
-    </div>
-    <div id="battery-info">
-        <p>loading...</p>
-    </div>
+		<div class="app">
+		</div>
+		<div id="battery-info">
+				<p>loading...</p>
+		</div>
 
 
-    <script type="text/javascript" src="cordova.js" charset="utf-8"></script>
-    <script type="text/javascript" src="js/index.js" charset="utf-8"></script>
-    <!--        <script type="text/javascript" src="js/battery.js" charset="utf-8"></script>-->
+		<script type="text/javascript" src="cordova.js" charset="utf-8"></script>
+		<script type="text/javascript" src="js/index.js" charset="utf-8"></script>
+		<!--        <script type="text/javascript" src="js/battery.js" charset="utf-8"></script>-->
 
-    <script>
-        window.addEventListener("batterystatus", onBatteryStatus, false);
+		<script>
+				window.addEventListener("batterystatus", onBatteryStatus, false);
 
-        function onBatteryStatus(info) {
-            // Handle the online event
-            console.log("Level: " + info.level + " isPlugged: " + info.isPlugged);
-        }
+				function onBatteryStatus(info) {
+						// Handle the online event
+						console.log("Level: " + info.level + " isPlugged: " + info.isPlugged);
+				}
 
-    </script>
+		</script>
 
 
 </body>

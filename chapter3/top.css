@@ -1,98 +1,98 @@
 .gothic {
-    font-family: Arial, Roboto, “Droid Sans”, “游ゴシック”, YuGothic, “ヒラギノ角ゴ ProN W3”, “Hiragino Kaku Gothic ProN”, “メイリオ”, Meiryo, sans-serif;
+		font-family: Arial, Roboto, “Droid Sans”, “游ゴシック”, YuGothic, “ヒラギノ角ゴ ProN W3”, “Hiragino Kaku Gothic ProN”, “メイリオ”, Meiryo, sans-serif;
 }
 
 .mincho {
-    font-family: “Times New Roman”, “游明朝”, YuMincho, “ヒラギノ明朝 ProN W3”, “Hiragino Mincho ProN”, “メイリオ”, Meiryo, serif;
+		font-family: “Times New Roman”, “游明朝”, YuMincho, “ヒラギノ明朝 ProN W3”, “Hiragino Mincho ProN”, “メイリオ”, Meiryo, serif;
 }
 
 body {
-    font-family: Arial, Roboto, “Droid Sans”, “游ゴシック”, YuGothic, “ヒラギノ角ゴ ProN W3”, “Hiragino Kaku Gothic ProN”, “メイリオ”, Meiryo, sans-serif;
+		font-family: Arial, Roboto, “Droid Sans”, “游ゴシック”, YuGothic, “ヒラギノ角ゴ ProN W3”, “Hiragino Kaku Gothic ProN”, “メイリオ”, Meiryo, sans-serif;
 }
 
 
 /* 回り込み解除 */
 
 .clear {
-    clear: both;
-    height: 0;
-    font-size: 1px;
-    line-height: 0;
-    visibility: hidden;
+		clear: both;
+		height: 0;
+		font-size: 1px;
+		line-height: 0;
+		visibility: hidden;
 }
 
 
 /*----- サイトの全体レイアウト -----*/
 
 #site-box {
-    width: 100%;
-    margin: 0;
-    padding: 0;
-    display: table;
+		width: 100%;
+		margin: 0;
+		padding: 0;
+		display: table;
 }
 
 #site-main {
-    width: 100%;
-    margin: 0;
-    padding: 0;
-    display: table;
+		width: 100%;
+		margin: 0;
+		padding: 0;
+		display: table;
 }
 
 #footer {
-    clear: both;
-    width: auto;
-    background-color: #f2f2ff;
-    color: #000000;
-    padding: 5px 0 1px;
+		clear: both;
+		width: auto;
+		background-color: #f2f2ff;
+		color: #000000;
+		padding: 5px 0 1px;
 }
 
 
 /*----- メインデザイン ------*/
 
 body {  /* 上下左右に余白が入らないように */
-    background-color: #f2f7f4;
-    margin: 0 0 2%;
-    padding: 0;
-    font-size: 16px;
+		background-color: #f2f7f4;
+		margin: 0 0 2%;
+		padding: 0;
+		font-size: 16px;
 }
 
 p {
-    font-size: 100%;
-    margin: 5px 20px;
-    letter-spacing: 0.02em;
+		font-size: 100%;
+		margin: 5px 20px;
+		letter-spacing: 0.02em;
 }
 
 img {
-    border: 0;
+		border: 0;
 }
 
 h1,h2,h3,h4 {
-    margin: 25px 0 16px;
-    padding: 0 14px;
+		margin: 25px 0 16px;
+		padding: 0 14px;
 }
 
 h1 {
-    color: #1e1ee6;
-    font-size: 220%;
-    border-bottom: double 4px;
+		color: #1e1ee6;
+		font-size: 220%;
+		border-bottom: double 4px;
 }
 
 h2 {
-    color: #4949ce;
-    font-size: 150%;
-    border-bottom: double 4px;
+		color: #4949ce;
+		font-size: 150%;
+		border-bottom: double 4px;
 }
 
 h3 {
-    color: #324599;
-    font-size: 120%;
-    border-bottom: solid 2px;
+		color: #324599;
+		font-size: 120%;
+		border-bottom: solid 2px;
 }
 
 h4 {
-    color: #2b3668;
-    font-size: 105%;
-    border-bottom: solid 1px;
+		color: #2b3668;
+		font-size: 105%;
+		border-bottom: solid 1px;
 }
 
 
@@ -104,49 +104,49 @@ p .hitWord {
 /*----- 以下、テキストの微変更用 -----*/
 
 .small {
-    font-size: 85%;
+		font-size: 85%;
 }
 
 .moresmall {
-    font-size: 60%;
+		font-size: 60%;
 }
 
 .big {
-    font-size: 120%;
+		font-size: 120%;
 }
 
 .morebig {
-    font-size: : 150%;
+		font-size: : 150%;
 }
 
 .b {
-    font-weight: bold;
+		font-weight: bold;
 }
 
 .u {
-    text-decoration: underline;
+		text-decoration: underline;
 }
 
 .torikesi {
-    text-decoration: line-through;
+		text-decoration: line-through;
 }
 
 
 /*----- 以下、文字カラー指定用のCSS -----*/
 
 .red {
-    color: #ff0000;
+		color: #ff0000;
 }
 
 .navy {
-    /* 濃い青 */
-    color: #191970;
+		/* 濃い青 */
+		color: #191970;
 }
 
 .orange {
-    color: #ff4500;
+		color: #ff4500;
 }
 
 .green {
-    color: #399003;
+		color: #399003;
 }
