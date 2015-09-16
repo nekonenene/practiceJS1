@@ -164,6 +164,15 @@ function submitNumbers(){
 } ;
 
 
+function SolveNumberPlace(questionArray, oneBoxWidth, oneBoxHeight){
+if(this.questionArray === undefined){
+return -1 ;
+console.log("*Error* questionArray is undefined") ;
+}
+
+return 1 ;
+} ;
+
 /* 与えられた 81 個の数列から、ナンバープレースを解く */
 function solveNumberPlace(questionArray){
 	console.time("solveNumberPlaceTimer") ;
