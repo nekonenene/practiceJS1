@@ -89,7 +89,7 @@ function doWhenPushedDeleteNumbersButton(){
 			numberPlaceElements[i].value = "" ;
 		}
 	}
-}
+} ;
 
 /* 実行ボタン */
 function doWhenPushedSubmitNumbersButton(){
@@ -138,7 +138,7 @@ function doWhenPushedSubmitNumbersButton(){
 } ;
 
 /* フォームの数字を取得し、配列 numberPlaceNumbers にひとつずつ入れる
- * 1～9 以外の値だったら代入せず、ボックスの中も空白にする */
+ * 1～9 以外の値だったら undefined を代入、ボックスの中は空白にする */
 function submitNumbers(){
 	// console.log("押されました") ;
 	var numberPlaceElements = document.getElementsByClassName("numberPlace") ;
@@ -153,7 +153,7 @@ function submitNumbers(){
 				numberPlaceElements[i].value = pushValue ;
 			}else{
 				numberPlaceElements[i].value = "" ;
-				pushValue = "" ;
+				pushValue = undefined ;
 			}
 		}
 		numberPlaceNumbers.push(pushValue) ;
@@ -163,14 +163,12 @@ function submitNumbers(){
 	return numberPlaceNumbers ;
 } ;
 
-
 function SolveNumberPlace(questionArray, oneBoxWidth, oneBoxHeight){
-if(this.questionArray === undefined){
-return -1 ;
-console.log("*Error* questionArray is undefined") ;
-}
-
-return 1 ;
+	if(this.questionArray === undefined){
+		console.log("*Error* questionArray is undefined") ;
+		return -1 ;
+	}
+	return 1 ;
 } ;
 
 /* 与えられた 81 個の数列から、ナンバープレースを解く */
@@ -287,7 +285,7 @@ function isTrueNumberPlace(doubleArr){
 
 			
 		for(var j=0; j<9; j++){
-			if(doubleArr[i][j].number !== undefined){
+			if(doubleArr[i][j].done === true){
 				if( isExistInArray(doubleArr[i][j].number, lineNumbers) === false ){
 					lineNumbers.push(doubleArr[i][j].number) ;
 					// console.log(lineNumbers) ;
@@ -314,10 +312,8 @@ function isTrueNumberPlace(doubleArr){
 						
 						return resultArray ;
 					}
-				
 			}
-			if(doubleArr[j][i].number !== undefined){
-				console.log(rowNumbers) ;
+			if(doubleArr[j][i].done === true){
 				if( isExistInArray(doubleArr[j][i].number, rowNumbers) === false ){
 					rowNumbers.push(doubleArr[j][i].number) ;
 					}else{
@@ -331,7 +327,6 @@ function isTrueNumberPlace(doubleArr){
 			}
 		}
 	}
-	
 	resultArray.result = true ;
 	return resultArray ;
 } ;
