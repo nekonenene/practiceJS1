@@ -49,9 +49,9 @@ body {
 
 /*----- メインデザイン ------*/
 
-input.numPlace{
+input.numberPlace{
 		width : 4ch ;
-		margin : 4px 2px ;
+		margin : 0 ;
 		background-color : #dfeeff ;
 }
 
