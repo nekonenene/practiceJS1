@@ -115,6 +115,9 @@ function doWhenPushedDeleteNumbersButton(){
 
 /* 実行ボタン */
 function doWhenPushedSubmitNumbersButton(){
+	var arr = getJson("numberPlaceArray.json") ;
+	console.log(arr) ;
+		
 	var inputTextAreaElement = document.getElementById("inputTextArea") ;
 	var outputElement = document.getElementById("output") ;
 	var str = "" ;
@@ -157,6 +160,30 @@ function doWhenPushedSubmitNumbersButton(){
 	}
 } ;
 
+/* JSON ファイルの中の配列を取ってくる */
+function getJson(filename){
+	var jsonArray = [] ;
+	var xmlHttpRequest = new XMLHttpRequest();
+	xmlHttpRequest.open( "GET", filename, true) ;
+	xmlHttpRequest.responseType = "json" ;
+	xmlHttpRequest.onreadystatechange = function(){
+		var READYSTATE_COMPLETED = 4;
+		var HTTP_STATUS_OK = 200;
+		if( this.readyState === READYSTATE_COMPLETED
+			&& this.status === HTTP_STATUS_OK ){
+				console.log(this);
+				jsonArray = this.response ;
+				console.log("jsonArray : " + jsonArray) ;
+			}else{
+			}
+	} ;
+	xmlHttpRequest.send( null );
+	
+	console.log(jsonArray) ;
+	return jsonArray ;
+} ;
+
+
 /* フォームの数字を取得し、配列 numberPlaceNumbers にひとつずつ入れる
  * 1～9 以外の値だったら undefined を代入、ボックスの中は空白にする */
 function submitNumbers(){
@@ -183,6 +210,7 @@ function submitNumbers(){
 	return numberPlaceNumbers ;
 } ;
 
+/******** SolveNumberPlace Object ********/
 var SolveNumberPlace = function(questionArray){
 	this.questionArray = questionArray ;
 	this.regionWidth   = 3 ;
@@ -233,42 +261,6 @@ function solveNumberPlace(questionArray){
 	for(var i=0; i<numbersDoubleArray.length; ++i){
 		numbersDoubleArray[i] = new Array(9) ;
 	}
-	
-	// test array
-	// if(questionArray === undefined){
-	// questionArray = [
-	//      , ,8,2, ,3,1, , ,
-	//      , ,6,1, ,5,8, , ,
-	//     1,5, , , , , ,3,9,
-	//     4,1, ,6, ,9, ,5,8,
-	//      , , , ,2, , , , ,
-	//     6,9, ,5, ,1, ,2,4,
-	//     8,3, , , , , ,7,6,
-	//      , ,5,3, ,4,9, , ,
-	//      , ,9,7, ,8,5, ,  ] ;
-
-	// 重複を見るだけでは解けない高度な問題
-	// questionArray = [
-	// 	7, , ,2, ,8, , ,3,
-	// 	 ,8, , ,1, , ,7, ,
-	// 	1, ,3, , , ,2, ,9,
-	// 	 ,6, , ,7, , ,3, ,
-	// 	5, , ,4,3,9, , ,1,
-	// 	 ,2, , ,6, , ,4, ,
-	// 	8, ,7, , , ,1, ,2,
-	// 	 ,9, , ,2, , ,6, ,
-	// 	6, , ,5, ,3, , ,4 ] ;
-	// 	}
-	// var answer = [
-	// 	[9,7,8,2,4,3,1,6,5],
-	// 	[3,2,6,1,9,5,8,4,7],
-	// 	[1,5,4,8,7,6,2,3,9],
-	// 	[4,1,2,6,3,9,7,5,8],
-	// 	[5,8,3,4,2,7,6,9,1],
-	// 	[6,9,7,5,8,1,3,2,4],
-	// 	[8,3,1,9,5,2,4,7,6],
-	// 	[7,6,5,3,1,4,9,8,2],
-	// 	[2,4,9,7,6,8,5,1,3] ] ;
 
 	for(var i=0; i<9; ++i){
 		for(var j=0; j<9; ++j){
