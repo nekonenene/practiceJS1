@@ -164,9 +164,34 @@ function submitNumbers(){
 } ;
 
 function SolveNumberPlace(questionArray, oneBoxWidth, oneBoxHeight){
-	if(this.questionArray === undefined){
-		console.log("*Error* questionArray is undefined") ;
-		return -1 ;
+	this.questionArray = questionArray ;
+	this.oneBoxWidth   = oneBoxWidth   ;
+	this.oneBoxHeight  = oneBoxHeight  ;
+
+	if(this.oneBoxWidth === undefined){
+		this.oneBoxWidth = 3 ;
+	}
+	if(this.oneBoxHeight === undefined){
+		this.oneBoxHeight = 3 ;
+	}
+	this.wholeWidthOrHeight = this.oneBoxWidth * this.oneBoxHeight ;
+
+	if(this.questionArray === undefined || this.questionArray.length < this.wholeWidthOrHeight * this.wholeWidthOrHeight){
+		console.log("*Error* Question array is not legal.") ;
+		console.log("start running test mode now.") ;
+
+		this.oneBoxWidth = 3 ;
+		this.oneBoxHeight = 3 ;
+		questionArray = [
+		     , ,8,2, ,3,1, , ,
+		     , ,6,1, ,5,8, , ,
+		    1,5, , , , , ,3,9,
+		    4,1, ,6, ,9, ,5,8,
+		     , , , ,2, , , , ,
+		    6,9, ,5, ,1, ,2,4,
+		    8,3, , , , , ,7,6,
+		     , ,5,3, ,4,9, , ,
+		     , ,9,7, ,8,5, ,  ] ;
 	}
 	return 1 ;
 } ;
@@ -282,7 +307,6 @@ function isTrueNumberPlace(doubleArr){
 	for(var i=0; i<9; ++i){
 		var lineNumbers = [] ;
 		var rowNumbers  = [] ;
-
 			
 		for(var j=0; j<9; j++){
 			if(doubleArr[i][j].done === true){
