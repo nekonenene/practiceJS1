@@ -162,25 +162,25 @@ function doWhenPushedSubmitNumbersButton(){
 
 /* JSON ファイルの中の配列を取ってくる */
 function getJson(filename){
-	var jsonArray = [] ;
 	var xmlHttpRequest = new XMLHttpRequest();
 	xmlHttpRequest.open( "GET", filename, true) ;
 	xmlHttpRequest.responseType = "json" ;
 	xmlHttpRequest.onreadystatechange = function(){
+		this.jsonArray = [] ;
 		var READYSTATE_COMPLETED = 4;
 		var HTTP_STATUS_OK = 200;
 		if( this.readyState === READYSTATE_COMPLETED
 			&& this.status === HTTP_STATUS_OK ){
 				console.log(this);
-				jsonArray = this.response ;
-				console.log("jsonArray : " + jsonArray) ;
+				this.jsonArray = this.response ;
+				console.log("jsonArray : " + this.jsonArray) ;
 			}else{
 			}
 	} ;
 	xmlHttpRequest.send( null );
 	
-	console.log(jsonArray) ;
-	return jsonArray ;
+	console.log(xmlHttpRequest.jsonArray) ;
+	return xmlHttpRequest.jsonArray ;
 } ;
 
 
