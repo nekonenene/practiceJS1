@@ -4,6 +4,9 @@ window.addEventListener("load", function () {
 	console.time("windowLoadFunctions") ;
 	var snp = new SolveNumberPlace() ;
 	snp.mainProcess() ;
+
+	var getJson = new SolveNumberPlace.GetJson("numberPlaceArray.json") ;
+	getJson.callJson() ;
 	
 	/* フォームと実行ボタンを HTML に書き込む */
 	var inputFormNumberPlaceElement = document.getElementById("inputFormNumberPlace") ;
@@ -117,9 +120,6 @@ function doWhenPushedDeleteNumbersButton(){
 
 /* 実行ボタン */
 function doWhenPushedSubmitNumbersButton(){
-	var arr = getJson("numberPlaceArray.json") ;
-	console.log(arr) ;
-		
 	var inputTextAreaElement = document.getElementById("inputTextArea") ;
 	var outputElement = document.getElementById("output") ;
 	var str = "" ;
@@ -128,13 +128,21 @@ function doWhenPushedSubmitNumbersButton(){
 	
 	var inputNumbersArray = submitNumbers() ;
 	var answerNumbersArray = solveNumberPlace(inputNumbersArray) ;
+
+	var sssss = new SolveNumberPlace() ;
+	sssss.questionArray = inputNumbersArray ;
+	sssss.mainProcess() ;
 	
 	var numberPlaceElements = document.getElementsByClassName("numberPlace") ;
 
 	if(answerNumbersArray[0] !== false){
 		/* 答えが導けた場合、フォームやテキストエリアに答えを記入 */
 		for(var i = 0; i < numberPlaceElements.length; ++i){
-			numberPlaceElements[i].value = answerNumbersArray[i] ;
+			if(answerNumbersArray[i] !== undefined){
+				numberPlaceElements[i].value = answerNumbersArray[i] ;
+			}else{
+				numberPlaceElements[i].value = "" ;
+			}
 		}
 		
 		/* 9個ごとに分けて出力、出力ごとに改行する */
@@ -144,7 +152,6 @@ function doWhenPushedSubmitNumbersButton(){
 		}
 		inputTextAreaElement.value = str ;
 		outputElement.innerHTML = str.replace(/[\n]/g, "<br>") ;
-		
 	}else{
 		if(String(answerNumbersArray[1]).search(/[0-9]/) !== -1){
 			var str = "入力された問題は、数字の重複があるため解けません" ;
@@ -242,10 +249,16 @@ var SolveNumberPlace = function(questionArray){
 
 SolveNumberPlace.prototype = {
 	mainProcess : function(){
+		console.log("Question : " + this.questionArray) ;
+		this.completeAnswerFlag = false ;
 		this.adjustQuestionArray() ;
 		this.putInTwoDimensionalArray() ;
-		this.isLegalNumberPlace() ;
-		this.reduceCandidates() ;
+		if( this.isLegalNumberPlace() ){
+			this.reduceCandidates() ;
+			// 答えを見てみる
+			console.log("Answer : " + this.outputTwoDimensionalQuestionArray()) ;
+		}
+		console.log("complete? : " + this.completeAnswerFlag) ;
 	} ,
 
 	/* 要求された １領域のタテヨコの長さに合わせて、questionArray を調整 */
@@ -384,30 +397,43 @@ SolveNumberPlace.prototype = {
 		return false ;
 	} ,
 
-	/* 候補を消していく */
+	/*** 候補を消していく ***
+	 *** アルゴリズム的にはメイン部分 ***/
 	reduceCandidates : function(){
+		this.completeAnswerFlag = false ;
 		do{
 			this.numberOfTimesChangedCandidates = 0 ;
-			this.numberOfTimesPutCandidate = 0 ;
-			
-			this.lookOverlapForReduceCandidates() ;
-			this.putUniqueCandidateNumber() ;
+			this.numberOfTimesPutCandidate = 0 ;  // 一意に絞られて代入したら +1
 
+			/* 各フォームごとに、タテヨコ領域内の重複している値を調べ、取り除く */
+			this.lookOverlapForReduceCandidates() ;
+			/* 各フォームごとに、候補が１つに絞られたとき .number に値を代入 */
+			this.putUniqueCandidateNumber() ;
 		}while(this.numberOfTimesPutCandidate > 0) ;
 
-		/* 値の重複を消すだけでは解決できなかった場合、候補の値を試しに入れてみる */
-		while(this.isCompleteAnswer === false){
+		/* 値の重複を消すだけでは解決できなかった場合、候補の値の１つを入れてみる */
+		if(this.isCompleteAnswer() === true){
+			this.completeAnswerFlag = true ;
+		}else{
 			console.log("戦いは続く") ;
-			break ;
-		} ;
-		// 答えを見てみる
-		console.log(this.outputTwoDimensionalQuestionArray()) ;
+			/* 経験上、候補は上の段階で最小２個まで絞られるはずだが、いちおう4まで */
+			var FIRST_CHOICE_FROM_X_CANDIDATE = 2 ;
+			var LAST_CHOICE_FROM_X_CANDIDATE = 4 ;
+			
+			for(var i = FIRST_CHOICE_FROM_X_CANDIDATE; i <= LAST_CHOICE_FROM_X_CANDIDATE; ++i){
+				if( this.tryChoiceCandidate(i) === true ){
+					this.completeAnswerFlag = true ;
+					break ;
+				}
+			}
+		}
+		return this.completeAnswerFlag ;
 	} ,
 
 	/* 周辺フォームの自分自身との重複を見る */
 	lookOverlapForReduceCandidates : function(){
 		do{
-			this.numberOfTimesChangedCandidates = 0 ;  // 候補が削られたとき ++this.numberOfTimesChangedCandidates
+			this.numberOfTimesChangedCandidates = 0 ;  // 候補が削られたとき +1
 			for(var i = 0; i < this.wholeBoxSize; ++i){
 				 // console.log(this.twoDimensionalQuestionArray[i][0].candidates) ;
 
@@ -500,6 +526,33 @@ SolveNumberPlace.prototype = {
 		return true ;
 	} ,
 
+	/* targetCandidatesAmount 個に候補が絞れてる場合は、ためしに入れてみる */
+	tryChoiceCandidate : function(targetFormCandidatesAmount){
+		for(var i = 0; i < this.wholeBoxSize; ++i){
+			for(var j = 0; j < this.wholeBoxSize; ++j){
+				if( this.twoDimensionalQuestionArray[i][j].candidates.length === targetFormCandidatesAmount ){
+					for(var k=0; k < i; ++k){
+						/* 候補を入れてみる前に、一時的に配列を保存しておく */
+						var saveArray = this.twoDimensionalQuestionArray ;
+						this.twoDimensionalQuestionArray[i][j] = {
+							number : this.twoDimensionalQuestionArray[i][j].candidates[k],
+							done : true,
+							candidates : undefined
+						} ;
+
+						this.lookOverlapForReduceCandidates() ;
+						if( isComplete(this.twoDimensionalQuestionArray) === true ){
+							return true ;
+						}else{
+							/* 上手く解けないようなら一時保存の配列に姿を戻す */
+							this.twoDimensionalQuestionArray = saveArray ;
+						}
+					}
+				}
+			}
+		}
+		return false ;
+	} ,
 	
 	/* テスト時に配列を簡単に出せるための機構 */
 	outputTwoDimensionalQuestionArray : function(){
@@ -511,9 +564,51 @@ SolveNumberPlace.prototype = {
 		}
 		return outputArray ;
 	}
-
 } ;
 
+
+/* JSON ファイルの中の配列を取ってくる */
+SolveNumberPlace.GetJson = function(filename){
+	this.filename = filename ;
+
+	var _fetchJsonArray = [] ;
+	this.setFetchJsonArray = function(jsonArray){
+		_fetchJsonArray = jsonArray ;
+	} ;
+	this.getFetchJsonArray = function(){
+		return _fetchJsonArray ;
+	} ;
+} ;
+
+SolveNumberPlace.GetJson.prototype = {
+	callJson : function(){
+		if(this.filename === undefined){
+			return false ;
+		}
+		var fetchJsonArray = [] ;
+		var gj = new SolveNumberPlace.GetJson(this.filename) ;
+		var xmlHttpRequest = new XMLHttpRequest();
+		xmlHttpRequest.open( "GET", this.filename, true) ;
+		xmlHttpRequest.responseType = "json" ;
+		xmlHttpRequest.onreadystatechange = function(){
+			var READYSTATE_COMPLETED = 4;
+			var HTTP_STATUS_OK = 200;
+			if( this.readyState === READYSTATE_COMPLETED &&
+				this.status === HTTP_STATUS_OK ){
+					// console.log(this) ;
+					fetchJsonArray = xmlHttpRequest.response ;
+					// console.log("child.jsonArray : " + fetchJsonArray ) ;
+
+					var data = eval(xmlHttpRequest.response) ;
+					gj.setFetchJsonArray(data) ;
+			}
+		} ;
+		xmlHttpRequest.send( null );
+		
+		// console.log("parent.jsonArray = " + fetchJsonArray ) ;
+		return fetchJsonArray ;
+	}
+} ;
 
 
 /* 与えられた 81 個の数列から、ナンバープレースを解く */
