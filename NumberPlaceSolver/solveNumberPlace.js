@@ -222,8 +222,12 @@ function submitNumbers(){
 
 
 /******** SolveNumberPlace Object ********/
-var SolveNumberPlace = function(questionArray){
-	this.questionArray = questionArray ;
+function SolveNumberPlace(questionArray){
+	if(questionArray === undefined){
+		this.questionArray = undefined ;
+	}else{
+		this.questionArray = questionArray.concat() ;
+	}
 	var _regionWidth   = 3 ;
 	var _regionHeight  = 3 ;
 
@@ -269,8 +273,7 @@ SolveNumberPlace.prototype = {
 
 		/* 与えられた配列の数が、全体のフォーム数より少ないならエラー処理 */
 		if(this.questionArray === undefined || this.questionArray.length < this.wholeBoxAmount){
-			console.log("*Error* Question array is not legal.") ;
-			console.log("start running test mode now.") ;
+			console.log("*Error* Question array is NOT legal. test mode starts now.") ;
 			/* テスト配列を代入（エラー時） */
 			this.assignTestArray() ;
 		}else if(this.questionArray.length > this.wholeBoxAmount){
@@ -415,7 +418,7 @@ SolveNumberPlace.prototype = {
 		if(this.isCompleteAnswer() === true){
 			this.completeAnswerFlag = true ;
 		}else{
-			console.log("戦いは続く") ;
+			console.log("難しい問題だね・・・") ;
 			/* 経験上、候補は上の段階で最小２個まで絞られるはずだが、いちおう4まで */
 			var FIRST_CHOICE_FROM_X_CANDIDATE = 2 ;
 			var LAST_CHOICE_FROM_X_CANDIDATE = 4 ;
@@ -505,10 +508,10 @@ SolveNumberPlace.prototype = {
 				if( (this.twoDimensionalQuestionArray[i][j].done === false) &&
 					(this.twoDimensionalQuestionArray[i][j].candidates.length === 1) ){
 					++this.numberOfTimesPutCandidate ;
-					this.twoDimensionalQuestionArray[i][j] =
-						{ number : Number(this.twoDimensionalQuestionArray[i][j].candidates[0]),
-						  done : true,
-						  candidates : undefined } ;
+					this.twoDimensionalQuestionArray[i][j].number
+						= Number(this.twoDimensionalQuestionArray[i][j].candidates[0]) ;
+					this.twoDimensionalQuestionArray[i][j].done = true ;
+					this.twoDimensionalQuestionArray[i][j].candidates = undefined ;
 				}
 			}
 		}
@@ -530,22 +533,30 @@ SolveNumberPlace.prototype = {
 	tryChoiceCandidate : function(targetFormCandidatesAmount){
 		for(var i = 0; i < this.wholeBoxSize; ++i){
 			for(var j = 0; j < this.wholeBoxSize; ++j){
-				if( this.twoDimensionalQuestionArray[i][j].candidates.length === targetFormCandidatesAmount ){
-					for(var k=0; k < i; ++k){
-						/* 候補を入れてみる前に、一時的に配列を保存しておく */
-						var saveArray = this.twoDimensionalQuestionArray ;
-						this.twoDimensionalQuestionArray[i][j] = {
-							number : this.twoDimensionalQuestionArray[i][j].candidates[k],
-							done : true,
-							candidates : undefined
-						} ;
+				if( this.twoDimensionalQuestionArray[i][j].done === false ){
+					if( this.twoDimensionalQuestionArray[i][j].candidates.length === targetFormCandidatesAmount ){
+						for(var k = 0; k < targetFormCandidatesAmount; ++k){
+							/* 候補を入れてみる前に、一時的に配列を保存しておく */
+							var saveArray = [] ;
+							saveArray.push(this.twoDimensionalQuestionArray[i][j].number) ;
+							saveArray.push(this.twoDimensionalQuestionArray[i][j].done) ;
+							saveArray.push(this.twoDimensionalQuestionArray[i][j].candidates) ;
+							// console.log("saveArray = " + saveArray) ;
 
-						this.lookOverlapForReduceCandidates() ;
-						if( isComplete(this.twoDimensionalQuestionArray) === true ){
-							return true ;
-						}else{
-							/* 上手く解けないようなら一時保存の配列に姿を戻す */
-							this.twoDimensionalQuestionArray = saveArray ;
+							this.twoDimensionalQuestionArray[i][j].number
+								= this.twoDimensionalQuestionArray[i][j].candidates[k] ;
+							this.twoDimensionalQuestionArray[i][j].done = true ;
+							this.twoDimensionalQuestionArray[i][j].candidates = undefined ;
+							this.lookOverlapForReduceCandidates() ;
+							// console.log(this.twoDimensionalQuestionArray[i][j].number) ;
+							if( this.isCompleteAnswer(this.twoDimensionalQuestionArray) === true ){
+								return true ;
+							}else{
+								/* 上手く解けないようなら一時保存の配列に姿を戻す */
+								this.twoDimensionalQuestionArray[i][j].number = saveArray[0] ;
+								this.twoDimensionalQuestionArray[i][j].done = saveArray[1] ;
+								this.twoDimensionalQuestionArray[i][j].candidates = saveArray[2] ;
+							}
 						}
 					}
 				}
@@ -664,9 +675,9 @@ function solveNumberPlace(questionArray){
 		}
 	}else{
 		// 解けなかった時は questionArray[0]~[2] に false を入れて送り返す
-		questionArray[0] = false ;
-		questionArray[1] = false ;
-		questionArray[2] = false ;
+		// questionArray[0] = false ;
+		// questionArray[1] = false ;
+		// questionArray[2] = false ;
 	}
 	
 	console.timeEnd("solveNumberPlaceTimer") ;
