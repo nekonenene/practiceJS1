@@ -2,108 +2,106 @@ window.addEventListener("load", function () {
 	"use strict" ;
 	
 	console.time("windowLoadFunctions") ;
-	var snp = new SolveNumberPlace() ;
+	var snp = new SolveNumberPlace.Solve() ;
 	snp.mainProcess() ;
+	console.log("=================================") ;
+	var snp2 = new SolveNumberPlace.MakeForm() ;
+	snp2.mainProcess() ;
+	snp2.writeHtml() ;
+	console.log("=================================") ;
 
-	var getJson = new SolveNumberPlace.GetJson("numberPlaceArray.json") ;
-	getJson.callJson() ;
+ // 	/* フォームと実行ボタンを HTML に書き込む */
+ // 	var inputFormNumberPlaceElement = document.getElementById("inputFormNumberPlace") ;
+ // 	var strForm = "" ;
+ // 	strForm += "<form name=\"numberPlaceForm\" accept-charset=\"utf-8\" style=\"margin:20px 15px;\">" ;
+ // 	for(var i=0; i<9; ++i){
+ // 		for(var j=0; j<9; ++j){
+ // 			if (navigator.userAgent.indexOf('iPhone') > 0
+ // 				|| navigator.userAgent.indexOf('Android') > 0) {
+ // 				// for SmartPhone
+ // 				strForm += "<input type=\"number\" name=\"numberPlace\" class=\"numberPlace\" \
+ // maxlength=\"1\" size=\"1\" pattern=\"\\d\" id=\"numberPlaceForm" + (i*9 + j) + "\">" ;
+ // 			}else{
+ // 				strForm += "<input type=\"text\" name=\"numberPlace\" class=\"numberPlace\" \
+ // maxlength=\"1\" size=\"1\" pattern=\"[1-9]\" id=\"numberPlaceForm" + (i*9 + j) + "\">" ;
+ // 			}
+ // 		}
+ // 		strForm += "<br>" ;
+ // 	}
 	
-	/* フォームと実行ボタンを HTML に書き込む */
-	var inputFormNumberPlaceElement = document.getElementById("inputFormNumberPlace") ;
-	var strForm = "" ;
-	strForm += "<form name=\"numberPlaceForm\" accept-charset=\"utf-8\" style=\"margin:20px 15px;\">" ;
-	for(var i=0; i<9; ++i){
-		for(var j=0; j<9; ++j){
-			if (navigator.userAgent.indexOf('iPhone') > 0
-				|| navigator.userAgent.indexOf('Android') > 0) {
-				// for SmartPhone
-				strForm += "<input type=\"number\" name=\"numberPlace\" class=\"numberPlace\" \
- maxlength=\"1\" size=\"1\" pattern=\"\\d\" id=\"numberPlaceForm" + (i*9 + j) + "\">" ;
-			}else{
-				strForm += "<input type=\"text\" name=\"numberPlace\" class=\"numberPlace\" \
- maxlength=\"1\" size=\"1\" pattern=\"[1-9]\" id=\"numberPlaceForm" + (i*9 + j) + "\">" ;
-			}
-		}
-		strForm += "<br>" ;
-	}
-	/* 82th hidden form
-	 strForm += "<input hidden=\"true\" type=\"text\" name=\"numberPlace\" class=\"numberPlace\" \
-	 maxlength=\"1\" size=\"1\" pattern=\"[1-9]\" tabIndex=\"" + i*9 + "\">" ;
-	 */
+ // 	strForm += "<input type=\"button\" id=\"submitNumbersButton\" name=\"button\" value=\"実行\" style=\"margin:3px 0;\">" ;
+ // 	strForm += "<input type=\"button\" id=\"deleteNumbersButton\" name=\"button\" value=\"消す\" style=\"margin:3px 0 0 8px;\">" ;
+ // 	strForm += "</form>" ;
 	
-	strForm += "<input type=\"button\" id=\"submitNumbersButton\" name=\"button\" value=\"実行\" style=\"margin:3px 0;\">" ;
-	strForm += "<input type=\"button\" id=\"deleteNumbersButton\" name=\"button\" value=\"消す\" style=\"margin:3px 0 0 8px;\">" ;
-	strForm += "</form>" ;
-	
-	inputFormNumberPlaceElement.innerHTML = strForm ;
+ // 	inputFormNumberPlaceElement.innerHTML = strForm ;
 
-	/* フォームに入力されたあとにおこなう挙動を登録 */
-	for(var i=0; i<9; ++i){
-		for(var j=0; j<9; ++j){
-			document.numberPlaceForm.numberPlace[i*9 + j].onkeyup = function(pushedKey){
-				moveSideForm(pushedKey.keyCode, this) ;
-			} ;
-		}
-	}
+	// /* フォームに入力されたあとにおこなう挙動を登録 */
+	// for(var i=0; i<9; ++i){
+	// 	for(var j=0; j<9; ++j){
+	// 		document.numberPlaceForm.numberPlace[i*9 + j].onkeyup = function(pushedKey){
+	// 			moveSideForm(pushedKey.keyCode, this) ;
+	// 		} ;
+	// 	}
+	// }
 
-	/* 「実行」ボタンを押された時の挙動の登録 */
-	var submitNumbersButtonElement =
-			document.getElementById("submitNumbersButton") ;
-	submitNumbersButtonElement.addEventListener("click", function(){
+	// /* 「実行」ボタンを押された時の挙動の登録 */
+	// var submitNumbersButtonElement =
+	// 		document.getElementById("submitNumbersButton") ;
+	// submitNumbersButtonElement.addEventListener("click", function(){
 		
-		doWhenPushedSubmitNumbersButton() ;
+	// 	doWhenPushedSubmitNumbersButton() ;
 		
-	}, false) ;
+	// }, false) ;
 
-	/* 「消す」ボタンを押された時の挙動の登録 */
-	var deleteNumbersButtonElement =
-			document.getElementById("deleteNumbersButton") ;
-	deleteNumbersButtonElement.addEventListener("click", function(){
+	// /* 「消す」ボタンを押された時の挙動の登録 */
+	// var deleteNumbersButtonElement =
+	// 		document.getElementById("deleteNumbersButton") ;
+	// deleteNumbersButtonElement.addEventListener("click", function(){
 		
-		doWhenPushedDeleteNumbersButton() ;
+	// 	doWhenPushedDeleteNumbersButton() ;
 		
-	}, false) ;
+	// }, false) ;
 	
 	console.timeEnd("windowLoadFunctions") ;
 	
 }, false) ;
 
 
-/* キーが押されたときに隣のフォームへ移動 */
-function moveSideForm(pushedKeyCode, currentForm){
-	var currentFormIndex = parseInt( currentForm.id.match(/[0-9]+$/) ) ;
-	/* 上下左右キーが押されたとき、その方向へ移動 */
-	if(37 <= pushedKeyCode && pushedKeyCode <= 40){
-		switch(pushedKeyCode){
-		case 37 :  // left
-			var nextFormIndex = (currentFormIndex - 1 + 81) % 81 ;
-			break ;
-		case 38 :  // up
-			var nextFormIndex = (currentFormIndex - 9 + 81) % 81 ;
-			break ;
-		case 39 :  // right
-			var nextFormIndex = (currentFormIndex + 1) % 81 ;
-			break ;
-		case 40 :  // down
-			var nextFormIndex = (currentFormIndex + 9) % 81 ;
-			break ;
-		}
-	}
-	/* フォームを限界文字数まで入力していたら次のフレームへ */
-	else if(currentForm.value.length >= currentForm.size){
-		var nextFormIndex = (currentFormIndex + 1) % 81 ;
-	}else{
-		return false ;
-	}
+// /* キーが押されたときに隣のフォームへ移動 */
+// function moveSideForm(pushedKeyCode, currentForm){
+// 	var currentFormIndex = parseInt( currentForm.id.match(/[0-9]+$/) ) ;
+// 	/* 上下左右キーが押されたとき、その方向へ移動 */
+// 	if(37 <= pushedKeyCode && pushedKeyCode <= 40){
+// 		switch(pushedKeyCode){
+// 		case 37 :  // left
+// 			var nextFormIndex = (currentFormIndex - 1 + 81) % 81 ;
+// 			break ;
+// 		case 38 :  // up
+// 			var nextFormIndex = (currentFormIndex - 9 + 81) % 81 ;
+// 			break ;
+// 		case 39 :  // right
+// 			var nextFormIndex = (currentFormIndex + 1) % 81 ;
+// 			break ;
+// 		case 40 :  // down
+// 			var nextFormIndex = (currentFormIndex + 9) % 81 ;
+// 			break ;
+// 		}
+// 	}
+// 	/* フォームを限界文字数まで入力していたら次のフレームへ */
+// 	else if(currentForm.value.length >= currentForm.size){
+// 		var nextFormIndex = (currentFormIndex + 1) % 81 ;
+// 	}else{
+// 		return false ;
+// 	}
 	
-	try{
-		document.numberPlaceForm.numberPlace[nextFormIndex].focus() ;
-	}catch(e){
-		console.log("*Warning* can't move the direction you pushed. ") ;
-		document.numberPlaceForm.numberPlace[currentFormIndex].focus() ;
-	}
-	return true ;
-} ;
+// 	try{
+// 		document.numberPlaceForm.numberPlace[nextFormIndex].focus() ;
+// 	}catch(e){
+// 		console.log("*Warning* can't move the direction you pushed. ") ;
+// 		document.numberPlaceForm.numberPlace[currentFormIndex].focus() ;
+// 	}
+// 	return true ;
+// } ;
 
 
 /* 消すボタン */
@@ -129,7 +127,7 @@ function doWhenPushedSubmitNumbersButton(){
 	var inputNumbersArray = submitNumbers() ;
 	var answerNumbersArray = solveNumberPlace(inputNumbersArray) ;
 
-	var sssss = new SolveNumberPlace() ;
+	var sssss = new SolveNumberPlace.Solve() ;
 	sssss.questionArray = inputNumbersArray ;
 	sssss.mainProcess() ;
 	
@@ -220,9 +218,16 @@ function submitNumbers(){
 	return numberPlaceNumbers ;
 } ;
 
+/****************************************
+	 package name : SolveNumberPlace 
+	
+		2015/9/12 - 2015/9/20
+ ***************************************/
+function SolveNumberPlace(){} ;
 
-/******** SolveNumberPlace Object ********/
-function SolveNumberPlace(questionArray){
+/******** SolveNumberPlace.Solve Object ********/
+/*** 与えられた配列から、ナンバープレースを解く ***/
+SolveNumberPlace.Solve = function(questionArray){
 	if(questionArray === undefined){
 		this.questionArray = undefined ;
 	}else{
@@ -249,9 +254,10 @@ function SolveNumberPlace(questionArray){
 		return _regionHeight ;
 	} ;
 } ;
-		
 
-SolveNumberPlace.prototype = {
+
+SolveNumberPlace.Solve.prototype = {
+	/****  メイン部分、ここを実行することで答えを求め始める  ****/
 	mainProcess : function(){
 		console.log("Question : " + this.questionArray) ;
 		this.completeAnswerFlag = false ;
@@ -263,6 +269,8 @@ SolveNumberPlace.prototype = {
 			console.log("Answer : " + this.outputTwoDimensionalQuestionArray()) ;
 		}
 		console.log("complete? : " + this.completeAnswerFlag) ;
+
+		this.answeredArray = this.twoDimensionalQuestionArray.concat() ;
 	} ,
 
 	/* 要求された １領域のタテヨコの長さに合わせて、questionArray を調整 */
@@ -278,7 +286,7 @@ SolveNumberPlace.prototype = {
 			this.assignTestArray() ;
 		}else if(this.questionArray.length > this.wholeBoxAmount){
 			/* 逆に多いなら、フォーム数の数だけ切り取る */
-			this.questionArray = this.questionArray(0, this.wholeBoxAmount) ;
+			this.questionArray = this.questionArray.slice(0, this.wholeBoxAmount) ;
 		}
 
 		/* 配列の中身が ボックスに入力する番号 以外の値なら、 undefined を代入する */
@@ -288,7 +296,6 @@ SolveNumberPlace.prototype = {
 				return String.fromCharCode(em.charCodeAt(0) - 0xFEE0);
 			});
 			pushValue = parseInt(pushValue) ; // 整数に直す
-
 			
 			if( (0 < pushValue) && (pushValue <= this.wholeBoxSize) ){
 				this.questionArray[i] = pushValue ;
@@ -357,7 +364,7 @@ SolveNumberPlace.prototype = {
 						// console.log(lineNumbers) ;
 					}else{
 						console.log("line Error") ;
-						this.overlapNumberPlace = [ i, j ] ;
+						this.overlappedNumberProblemPlace = [ i, j ] ;
 						return false ;
 					}
 
@@ -370,7 +377,7 @@ SolveNumberPlace.prototype = {
 						// console.log(oneRegion[region]) ;
 					}else{
 						console.log("Box Error") ;
-						this.overlapNumberPlace = [ i, j ] ;
+						this.overlappedNumberProblemPlace = [ i, j ] ;
 						return false ;
 					}
 				}
@@ -380,7 +387,7 @@ SolveNumberPlace.prototype = {
 						rowNumbers.push(this.twoDimensionalQuestionArray[j][i].number) ;
 					}else{
 						console.log("row Error") ;
-						this.overlapNumberPlace = [ j, i ] ;
+						this.overlappedNumberProblemPlace = [ j, i ] ;
 						return false ;
 					}
 				}
@@ -439,7 +446,6 @@ SolveNumberPlace.prototype = {
 			this.numberOfTimesChangedCandidates = 0 ;  // 候補が削られたとき +1
 			for(var i = 0; i < this.wholeBoxSize; ++i){
 				 // console.log(this.twoDimensionalQuestionArray[i][0].candidates) ;
-
 				for(var j = 0; j < this.wholeBoxSize; ++j){
 					if(this.twoDimensionalQuestionArray[i][j].done === false){
 						var aroundNumbers = [] ;
@@ -578,281 +584,557 @@ SolveNumberPlace.prototype = {
 } ;
 
 
-/* JSON ファイルの中の配列を取ってくる */
-SolveNumberPlace.GetJson = function(filename){
-	this.filename = filename ;
+/************** SolveNumberPlace.MakeForm ***************/
+/* SolveNumberPlace.Solve の拡張。入力フォームを作れるようにする */
+SolveNumberPlace.MakeForm = function(questionArray){
+	this.questionArray = questionArray ;
+} ;
+SolveNumberPlace.MakeForm.prototype = new SolveNumberPlace.Solve(this.questionArray) ;
 
-	var _fetchJsonArray = [] ;
-	this.setFetchJsonArray = function(jsonArray){
-		_fetchJsonArray = jsonArray ;
-	} ;
-	this.getFetchJsonArray = function(){
-		return _fetchJsonArray ;
-	} ;
+/* 継承のときはリテラル表現が使えない（new Object(); が自動的におこなわれる）ので、
+ * しぶしぶドット演算子で以降書く */
+/* フォームと実行ボタンを HTML に書き込む */
+SolveNumberPlace.MakeForm.prototype.writeHtml = function(){
+	var formsAreaElement = document.getElementById("inputFormNumberPlace") ;
+	var stringsInFormsArea = "" ;
+
+	stringsInFormsArea += "<form name=\"numberPlaceFormArea\" accept-charset=\"utf-8\">" ;
+
+	/* wholeBoxSize が何桁か見て、それを入力できる桁数とする */
+	this.digitOfWholeBoxSize = this.countDigit(this.wholeBoxSize) ;
+	for(var i = 0; i < this.wholeBoxSize; ++i){
+		for(var j = 0; j < this.wholeBoxSize; ++j){
+			if(this.isSmartPhone() === true){
+				// for SmartPhone
+				stringsInFormsArea += "<input type=\"number\" " ;
+			}else{
+				stringsInFormsArea += "<input type=\"text\" " ;
+			}
+			stringsInFormsArea += ("name=\"numberPlaceForm\" class=\"numberPlaceForm\" maxlength=\""
+								   + this.digitOfWholeBoxSize + "\" size=\""
+								   + this.digitOfWholeBoxSize + "\" pattern=\"\\d{"
+								   + this.digitOfWholeBoxSize + "}\" id=\"numberPlaceForm"
+								   + (i * this.wholeBoxSize + j) + "\">") ;
+		}
+		stringsInFormsArea += "<br>" ;
+	}
+	
+	stringsInFormsArea += "<input type=\"button\" id=\"submitNumbersButton\" name=\"button\" value=\"実行\">" ;
+	stringsInFormsArea += "<input type=\"button\" id=\"deleteNumbersButton\" name=\"button\" value=\"消す\">" ;
+	stringsInFormsArea += "</form>" ;
+	
+	formsAreaElement.innerHTML = stringsInFormsArea ;
+
+	/* フォームに入力されたあとにおこなう挙動を登録 */
+	this.whenInputIntoForm() ;
+
+	/* 「実行」ボタンを押された時の挙動の登録 */
+	this.whenPushSubmitButton() ;
+
+	/* 「消す」ボタンを押された時の挙動の登録 */
+	var deleteNumbersButtonElement =
+			document.getElementById("deleteNumbersButton") ;
+	deleteNumbersButtonElement.addEventListener("click", function(){
+		
+		doWhenPushedDeleteNumbersButton() ;
+		
+	}, false) ;
+	
+	console.timeEnd("windowLoadFunctions") ;
 } ;
 
-SolveNumberPlace.GetJson.prototype = {
-	callJson : function(){
-		if(this.filename === undefined){
+
+/* スマホ判定、参考 : https://w3g.jp/blog/js_browser_sniffing2015 */
+SolveNumberPlace.MakeForm.prototype.isSmartPhone = function(){
+	var userAgent = window.navigator.userAgent.toLowerCase() ;
+	if( (userAgent.indexOf("windows") != -1 && userAgent.indexOf("phone") != -1)
+		|| userAgent.indexOf("iphone") != -1
+		|| userAgent.indexOf("ipod") != -1
+		|| (userAgent.indexOf("android") != -1 && userAgent.indexOf("mobile") != -1)
+		|| (userAgent.indexOf("firefox") != -1 && userAgent.indexOf("mobile") != -1)
+		|| userAgent.indexOf("blackberry") != -1 ){
+			return true ;
+		}else{
 			return false ;
 		}
-		var fetchJsonArray = [] ;
-		var gj = new SolveNumberPlace.GetJson(this.filename) ;
-		var xmlHttpRequest = new XMLHttpRequest();
-		xmlHttpRequest.open( "GET", this.filename, true) ;
-		xmlHttpRequest.responseType = "json" ;
-		xmlHttpRequest.onreadystatechange = function(){
-			var READYSTATE_COMPLETED = 4;
-			var HTTP_STATUS_OK = 200;
-			if( this.readyState === READYSTATE_COMPLETED &&
-				this.status === HTTP_STATUS_OK ){
-					// console.log(this) ;
-					fetchJsonArray = xmlHttpRequest.response ;
-					// console.log("child.jsonArray : " + fetchJsonArray ) ;
-
-					var data = eval(xmlHttpRequest.response) ;
-					gj.setFetchJsonArray(data) ;
-			}
-		} ;
-		xmlHttpRequest.send( null );
-		
-		// console.log("parent.jsonArray = " + fetchJsonArray ) ;
-		return fetchJsonArray ;
-	}
 } ;
 
 
-/* 与えられた 81 個の数列から、ナンバープレースを解く */
-function solveNumberPlace(questionArray){
-	console.time("solveNumberPlaceTimer") ;
-	console.log("solve start") ;
-	
-	var numbersDoubleArray = new Array(9) ;
-	for(var i=0; i<numbersDoubleArray.length; ++i){
-		numbersDoubleArray[i] = new Array(9) ;
-	}
+/* 何桁かを見る */
+SolveNumberPlace.MakeForm.prototype.countDigit = function(inputNumber){
+	var number = inputNumber ;
+	var counter = 0 ;
 
-	for(var i=0; i<9; ++i){
-		for(var j=0; j<9; ++j){
-			numbersDoubleArray[i][j] = { number : questionArray[i*9 + j], done : false } ;
-			if(numbersDoubleArray[i][j].number !== undefined && numbersDoubleArray[i][j].number != ""){
-				numbersDoubleArray[i][j].done = true ;
-				// console.log( (i*9+j) + " : " + numbersDoubleArray[i][j].number) ;
-			}else{
-				numbersDoubleArray[i][j].candidate = "123456789" ;
+	do{
+		number = parseInt(number / 10) ;
+		++counter ;
+	}while(number !== 0) ;
+
+	return counter ;
+} ;
+
+
+/* 入力があったときに自動で別のフォームへフォーカスが移るよう、各フォームに設定 */
+SolveNumberPlace.MakeForm.prototype.whenInputIntoForm = function(){
+	/* キーが押されたときに隣のフォームへ移動 */
+	function moveSideForm(pushedKeyCode, currentForm){
+		var currentFormIndex = parseInt( currentForm.id.match(/[0-9]+$/) ) ;
+		/* 上下左右キーが押されたとき、その方向へ移動 */
+		if(37 <= pushedKeyCode && pushedKeyCode <= 40){
+			switch(pushedKeyCode){
+			case 37 :  // left
+				var nextFormIndex = (currentFormIndex - 1 + 81) % 81 ;
+				break ;
+			case 38 :  // up
+				var nextFormIndex = (currentFormIndex - 9 + 81) % 81 ;
+				break ;
+			case 39 :  // right
+				var nextFormIndex = (currentFormIndex + 1) % 81 ;
+				break ;
+			case 40 :  // down
+				var nextFormIndex = (currentFormIndex + 9) % 81 ;
+				break ;
 			}
 		}
-	}
-
-	/* function isTrueNumberPlace を使い、ちゃんと解ける問題なのかチェック */
-	var isLegal = isTrueNumberPlace(numbersDoubleArray) ;
-	if(isLegal.result === false){
-		var resultArray = [ isLegal.result, isLegal.errorPlaceI, isLegal.errorPlaceJ] ;
-		return resultArray ;
-	}
-
-	/* 重複を見て候補を絞る */
-	reduceCandidates(numbersDoubleArray) ;
-
-	/* 答えが出ないときは、試しに i 個の候補から数値を入れてみてどうなるか試行する */
-	var FIRST_CHOICE_FROM_X_CANDIDATE = 2 ;
-	var LAST_CHOICE_FROM_X_CANDIDATE = 4 ;  // 経験上、候補は２個まで絞られるはずなので、4までやるのは少し大げさ
-	var i = FIRST_CHOICE_FROM_X_CANDIDATE ;
-	while(isComplete(numbersDoubleArray) === false){
-		numbersDoubleArray = tryChoiceCandidate(numbersDoubleArray, i++) ;
-
-		if(i === LAST_CHOICE_FROM_X_CANDIDATE){ break; }
-	}
-	
-	// questionArray に入れて送り返してあげる
-	if(isComplete(numbersDoubleArray) === true){
-		for(var i=0; i<9; ++i){
-			for(var j=0; j<9; ++j){
-				questionArray[i*9 +j] = numbersDoubleArray[i][j].number ;
-				// console.log(numbersDoubleArray[i][j].number) ;
-				// console.log(questionArray) ;
-			}
+		/* フォームを限界文字数まで入力していたら次のフレームへ */
+		else if(currentForm.value.length >= currentForm.size){
+			var nextFormIndex = (currentFormIndex + 1) % 81 ;
+		}else{
+			return false ;
 		}
+		
+		try{
+			document.numberPlaceFormArea.numberPlaceForm[nextFormIndex].focus() ;
+		}catch(e){
+			console.log("*Warning* can't move the direction you pushed. ") ;
+			document.numberPlaceFormArea.numberPlaceForm[currentFormIndex].focus() ;
+		}
+		return true ;
+	} ;
+
+	for(var i = 0; i < this.wholeBoxSize; ++i){
+		for(var j = 0; j < this.wholeBoxSize; ++j){
+			document.numberPlaceFormArea.numberPlaceForm[i * this.wholeBoxSize + j].onkeyup = function(pushedKey){
+				console.log("this=" + this) ;
+				moveSideForm(pushedKey.keyCode, this) ;
+			} ;
+		}
+	}
+} ;
+
+/* キーが押されたときに隣のフォームへ移動 */
+SolveNumberPlace.MakeForm.prototype.moveSideForm = function(pushedKeyCode, currentForm){
+	var currentFormIndex = Number( currentForm.id ) ;
+	/* 上下左右キーが押されたとき、その方向へ移動 */
+	if(37 <= pushedKeyCode && pushedKeyCode <= 40){
+		switch(pushedKeyCode){
+		case 37 :  // left
+			var nextFormIndex = (currentFormIndex - 1 + 81) % 81 ;
+			break ;
+		case 38 :  // up
+			var nextFormIndex = (currentFormIndex - 9 + 81) % 81 ;
+			break ;
+		case 39 :  // right
+			var nextFormIndex = (currentFormIndex + 1) % 81 ;
+			break ;
+		case 40 :  // down
+			var nextFormIndex = (currentFormIndex + 9) % 81 ;
+			break ;
+		}
+	}
+	/* フォームを限界文字数まで入力していたら次のフレームへ */
+	else if(currentForm.value.length >= currentForm.size){
+		var nextFormIndex = (currentFormIndex + 1) % 81 ;
 	}else{
-		// 解けなかった時は questionArray[0]~[2] に false を入れて送り返す
-		// questionArray[0] = false ;
-		// questionArray[1] = false ;
-		// questionArray[2] = false ;
+		return false ;
 	}
-	
-	console.timeEnd("solveNumberPlaceTimer") ;
-	
-	return questionArray ;
-} ;
-
-
-
-/* 正しく 1~9 の組み合わせがおこなわれてるかチェックする */
-function isTrueNumberPlace(doubleArr){
-
-	var resultArray = [] ;
-
-	/* 縦もしくは横に数値の重複がないか調べる */
-	var nineBoxNumbers = new Array(9) ;
-	for(var i=0; i<9; ++i){
-		var lineNumbers = [] ;
-		var rowNumbers  = [] ;
-		
-		for(var j=0; j<9; j++){
-			if(doubleArr[i][j].done === true){
-				if( isExistInArray(doubleArr[i][j].number, lineNumbers) === false ){
-					lineNumbers.push(doubleArr[i][j].number) ;
-					// console.log(lineNumbers) ;
-				}else{
-					console.log("line Error") ;
-					resultArray.result = false ;
-					resultArray.errorPlaceI = i ;
-					resultArray.errorPlaceJ = j ;
-					
-					return resultArray ;
-				}
-
-				/* ここで 3x3 マスの重複について調べる */
-				var region = Math.floor(i / 3) * 3 + Math.floor(j / 3) ;
-				nineBoxNumbers[region] = [] ;
-				if( isExistInArray(doubleArr[i][j].number, nineBoxNumbers[region]) === false ){
-					nineBoxNumbers[region].push(doubleArr[i][j].number) ;
-					// console.log(nineBoxNumbers[region]) ;
-				}else{
-					console.log("Box Error") ;
-					resultArray.result = false ;
-					resultArray.errorPlaceI = i ;
-					resultArray.errorPlaceJ = j ;
-					
-					return resultArray ;
-				}
-			}
-			if(doubleArr[j][i].done === true){
-				if( isExistInArray(doubleArr[j][i].number, rowNumbers) === false ){
-					rowNumbers.push(doubleArr[j][i].number) ;
-				}else{
-					console.log("row Error") ;
-					resultArray.result = false ;
-					resultArray.errorPlaceI = j ;
-					resultArray.errorPlaceJ = i ;
-
-					return resultArray ;
-				}
-			}
-		}
-	}
-	resultArray.result = true ;
-	return resultArray ;
-} ;
-
-
-/* 与えられた変数が、与えられた配列のいずれかと一致するか */
-function isExistInArray(targetVariable, array){
-	if(targetVariable === undefined || array === undefined){return undefined ;}
-	for(var i=0; i<array.length; ++i){
-		if(targetVariable === array[i]){
-			return true ;
-		}
-	}
-	return false ;
-} ;
-
-/* タテ・ヨコ・3x3 ボックス を見て、重複する値を候補から消すことを繰り返す */
-function reduceCandidates(doubleArr){
-
-	var changeCandidate = -1 ;
-	while(changeCandidate !== 0){
-		// console.log(changeCandidate) ;
-		changeCandidate = 0 ;  // 候補が削られたとき ++changeCandidate
-		
-		for(var i=0; i<9; ++i){
-			for(var j=0; j<9; ++j){
-				if(doubleArr[i][j].done === false){
-					for(var m=0; m<9; ++m){
-						/* タテ・ヨコの重複する数値は候補 candidate から消す */
-						if( (doubleArr[i][m].done === true)
-							&& (doubleArr[i][j].candidate.search(doubleArr[i][m].number) !== -1)
-							&& (m !== j) ){
-							doubleArr[i][j].candidate =
-								doubleArr[i][j].candidate.replace( RegExp(doubleArr[i][m].number), "" ) ;
-							++changeCandidate ;
-						}
-						if( (doubleArr[m][j].done === true)
-							&& (doubleArr[i][j].candidate.search(doubleArr[m][j].number) !== -1)
-							&& (m !== i) ){
-							doubleArr[i][j].candidate =
-								doubleArr[i][j].candidate.replace( RegExp(doubleArr[m][j].number), "" ) ;
-							++changeCandidate ;
-						}
-					}
-					/* nineBoxNumbers ごとの重複を候補から外す */
-					var mStart = Math.floor(i / 3) * 3 ;
-					var nStart = Math.floor(j / 3) * 3 ;
-					for(var m = mStart; m < mStart + 3; ++m){
-						for(var n = nStart; n < nStart + 3; ++n){
-							if( (doubleArr[m][n].done === true)
-								&& (doubleArr[i][j].candidate.search(doubleArr[m][n].number) !== -1)
-								&& (m !== i && n !== j) ){
-								doubleArr[i][j].candidate =
-									doubleArr[i][j].candidate.replace
-								( RegExp(doubleArr[m][n].number), "" ) ;
-								++changeCandidate ;
-							}
-						}
-					}
-
-					doubleArr[i][j].number =
-						parseInt(doubleArr[i][j].candidate) ;
-					
-					// 候補が削られ、一意に定まったならそれを代入
-					if(String(doubleArr[i][j].candidate).length === 1){
-						doubleArr[i][j].number =
-							parseInt(doubleArr[i][j].candidate) ;
-						doubleArr[i][j].done = true ;
-						// console.log("decide One: " + doubleArr[i][j].candidate + ", i: " + i + ", j: " + j + " " + doubleArr[i][j].done) ;
-					}
-				}
-
-			}
-		}
-	}
-	return doubleArr ;
-} ;
-
-
-/* i 個に候補が絞れてる場合は、ためしに入れてみる */
-function tryChoiceCandidate(doubleArr, i){
-
-	for(var i=0; i<9; ++i){
-		for(var j=0; j<9; ++j){
-			if( String(doubleArr[i][j].candidate).length === i ){
-				for(var k=0; k<i; ++k){
-					doubleArr[i][j].number = parseInt( String(doubleArr[i][j].candidate).charAt(k) ) ;
-					doubleArr[i][j].done = true ;
-					doubleArr[i][j].candidate = undefined ;
-
-					doubleArr = reduceCandidates(doubleArr) ;
-					if( isComplete(doubleArr) === true ){
-						return doubleArr ;
-					}
-				}
-			}
-			
-		}
-	}
-
-	return doubleArr ;
-} ;
-
-
-/* 全てが done か調べる */
-function isComplete(answeredArray){
-	for(var i=0; i<9; ++i){
-		for(var j=0; j<9; ++j){
-			if(answeredArray[i][j].done !== true){
-				return false ;
-			}
-		}
+	/* もしエラーで動けなかった時は、現在のフォームにとどまる */
+	try{
+		document.numberPlaceFormArea.numberPlaceForm[nextFormIndex].focus() ;
+	}catch(e){
+		console.log("*Warning* can't move the direction you pushed. ") ;
+		document.numberPlaceFormArea.numberPlaceForm[currentFormIndex].focus() ;
 	}
 	return true ;
 } ;
+
+
+/* 実行ボタンの挙動を登録する */
+SolveNumberPlace.MakeForm.prototype.whenPushSubmitButton = function(){
+	var submitNumbersButtonElement = document.getElementById("submitNumbersButton") ;
+	submitNumbersButtonElement.addEventListener("click", function(){
+		var questionArray = [] ;
+		var numberPlaceInputFormsElements = document.getElementsByClassName("numberPlaceForm") ;
+		for(var i = 0; i < numberPlaceInputFormsElements.length; ++i){
+			questionArray.push(numberPlaceInputFormsElements[i].value) ;
+		}
+		var solveNumberPlace = new SolveNumberPlace.MakeForm(questionArray) ;
+		solveNumberPlace.mainProcess() ;
+		console.log("#") ;
+		solveNumberPlace.outputAnswerToForms() ;
+	}, false) ;
+} ;
+
+
+/* 解答を、テキストエリアやフォームに出力する */
+SolveNumberPlace.MakeForm.prototype.outputAnswerToForms = function(){
+	var inputTextAreaElement = document.getElementById("inputTextArea") ;
+	var numberPlaceInputFormsElements = document.getElementsByClassName("numberPlaceForm") ;
+	var outputElement = document.getElementById("output") ;
+	/* 出力エリアを空白で初期化 */
+	var outputString = "" ;
+	inputTextAreaElement.value = outputString ;
+	outputElement.innerHTML = outputString ;
+
+
+	/* 答えが導けた場合、フォームやテキストエリアに答えを記入 */
+	if(this.completeAnswerFlag === true){
+		/* フォームに出力 */
+		for(var i = 0; i < numberPlaceInputFormsElements.length; ++i){
+			if(this.answeredArray[i] !== undefined){
+				numberPlaceInputFormsElements[i].value = this.answeredArray[i] ;
+			}else{
+				numberPlaceInputFormsElements[i].value = "" ;
+			}
+		}
+		
+		/* テキストエリアへの出力 */
+		/* 見やすいよう、最大桁より小さい桁数なら、そのぶん左に空白 */
+		for(var i = 0; i < this.answeredArray.length; ++i){
+			this.answeredArray[i] = String(this.answeredArray[i]) ;
+			if(this.answeredArray[i].length < this.digitOfWholeBoxSize){
+				this.answeredArray[i] = ( " " * (this.digitOfWholeBoxSize - this.answeredArray[i].length) + this.answeredArray[i] ) ;
+			}
+		}
+		/* 見やすいよう、 boxSize 個ごとに改行する */
+		for(var i = 0; i < this.wholeBoxSize; ++i){
+			outputString += this.answeredArray.slice( (i * this.wholeBoxSize), ((i+1) * this.wholeBoxSize) ) ;
+			outputString += "\n" ;
+		}
+		inputTextAreaElement.value = outputString ;
+		outputElement.innerHTML = outputString.replace(/[\n]/g, "<br>") ;
+	}else{
+		if(this.overlappedNumberProblemPlace !== undefined){
+			outputString = "入力された問題は、数字の重複があるため解けませんでした" ;
+			console.log("errorPlaceI : " + this.overlappedNumberProblemPlace[0]
+						+ ", errorPlaceJ : " + this.overlappedNumberProblemPlace[1] ) ;
+			var problemPlaceElement = numberPlaceInputFormsElements[ this.overlappedNumberProblemPlace[0] * this.wholeBoxSize + this.overlappedNumberProblemPlace[1] ] ;
+			console.log(problemPlaceElement) ;
+		}else{
+			outputString = "解けませんでした。" ;
+			/* フォームに出力 */
+			for(var i = 0; i < numberPlaceInputFormsElements.length; ++i){
+				if(this.answeredArray[i] !== undefined){
+					numberPlaceInputFormsElements[i].value = this.answeredArray[i] ;
+				}else{
+					numberPlaceInputFormsElements[i].value = "" ;
+				}
+			}
+		}
+		inputTextAreaElement.value = outputString ;
+		document.getElementById("output").innerHTML = outputString ;
+	}
+} ;
+
+
+SolveNumberPlace.MakeForm.prototype.mainProcess = function(){
+	console.log("Question : " + this.questionArray) ;
+	this.completeAnswerFlag = false ;
+	this.adjustQuestionArray() ;
+	this.putInTwoDimensionalArray() ;
+	if( this.isLegalNumberPlace() ){
+		this.reduceCandidates() ;
+	}
+
+	this.answeredArray = [] ;
+	for(var i = 0; i < this.wholeBoxSize; ++i){
+		for(var j = 0; j < this.wholeBoxSize; ++j){
+			this.answeredArray.push(this.twoDimensionalQuestionArray[i][j]) ;
+		}
+	}
+	console.log("##" + this.twoDimensionalQuestionArray) ;
+	console.log("###" + this.answeredArray) ;
+	this.outputAnswerToForms() ;
+} ;
+
+
+
+
+
+
+
+
+
+// /* JSON ファイルの中の配列を取ってくる */
+// SolveNumberPlace.GetJson = function(filename){
+// 	this.filename = filename ;
+
+// 	var _fetchJsonArray = [] ;
+// 	this.setFetchJsonArray = function(jsonArray){
+// 		_fetchJsonArray = jsonArray ;
+// 	} ;
+// 	this.getFetchJsonArray = function(){
+// 		return _fetchJsonArray ;
+// 	} ;
+// } ;
+
+// SolveNumberPlace.GetJson.prototype = {
+// 	callJson : function(){
+// 		if(this.filename === undefined){
+// 			return false ;
+// 		}
+// 		var fetchJsonArray = [] ;
+// 		var gj = new SolveNumberPlace.GetJson(this.filename) ;
+// 		var xmlHttpRequest = new XMLHttpRequest();
+// 		xmlHttpRequest.open( "GET", this.filename, true) ;
+// 		xmlHttpRequest.responseType = "json" ;
+// 		xmlHttpRequest.onreadystatechange = function(){
+// 			var READYSTATE_COMPLETED = 4;
+// 			var HTTP_STATUS_OK = 200;
+// 			if( this.readyState === READYSTATE_COMPLETED &&
+// 				this.status === HTTP_STATUS_OK ){
+// 					// console.log(this) ;
+// 					fetchJsonArray = xmlHttpRequest.response ;
+// 					// console.log("child.jsonArray : " + fetchJsonArray ) ;
+
+// 					var data = eval(xmlHttpRequest.response) ;
+// 					gj.setFetchJsonArray(data) ;
+// 			}
+// 		} ;
+// 		xmlHttpRequest.send( null );
+		
+// 		// console.log("parent.jsonArray = " + fetchJsonArray ) ;
+// 		return fetchJsonArray ;
+// 	}
+// } ;
+
+
+// /* 与えられた 81 個の数列から、ナンバープレースを解く */
+// function solveNumberPlace(questionArray){
+// 	console.time("solveNumberPlaceTimer") ;
+// 	console.log("solve start") ;
+	
+// 	var numbersDoubleArray = new Array(9) ;
+// 	for(var i=0; i<numbersDoubleArray.length; ++i){
+// 		numbersDoubleArray[i] = new Array(9) ;
+// 	}
+
+// 	for(var i=0; i<9; ++i){
+// 		for(var j=0; j<9; ++j){
+// 			numbersDoubleArray[i][j] = { number : questionArray[i*9 + j], done : false } ;
+// 			if(numbersDoubleArray[i][j].number !== undefined && numbersDoubleArray[i][j].number != ""){
+// 				numbersDoubleArray[i][j].done = true ;
+// 				// console.log( (i*9+j) + " : " + numbersDoubleArray[i][j].number) ;
+// 			}else{
+// 				numbersDoubleArray[i][j].candidate = "123456789" ;
+// 			}
+// 		}
+// 	}
+
+// 	/* function isTrueNumberPlace を使い、ちゃんと解ける問題なのかチェック */
+// 	var isLegal = isTrueNumberPlace(numbersDoubleArray) ;
+// 	if(isLegal.result === false){
+// 		var resultArray = [ isLegal.result, isLegal.errorPlaceI, isLegal.errorPlaceJ] ;
+// 		return resultArray ;
+// 	}
+
+// 	/* 重複を見て候補を絞る */
+// 	reduceCandidates(numbersDoubleArray) ;
+
+// 	/* 答えが出ないときは、試しに i 個の候補から数値を入れてみてどうなるか試行する */
+// 	var FIRST_CHOICE_FROM_X_CANDIDATE = 2 ;
+// 	var LAST_CHOICE_FROM_X_CANDIDATE = 4 ;  // 経験上、候補は２個まで絞られるはずなので、4までやるのは少し大げさ
+// 	var i = FIRST_CHOICE_FROM_X_CANDIDATE ;
+// 	while(isComplete(numbersDoubleArray) === false){
+// 		numbersDoubleArray = tryChoiceCandidate(numbersDoubleArray, i++) ;
+
+// 		if(i === LAST_CHOICE_FROM_X_CANDIDATE){ break; }
+// 	}
+	
+// 	// questionArray に入れて送り返してあげる
+// 	if(isComplete(numbersDoubleArray) === true){
+// 		for(var i=0; i<9; ++i){
+// 			for(var j=0; j<9; ++j){
+// 				questionArray[i*9 +j] = numbersDoubleArray[i][j].number ;
+// 				// console.log(numbersDoubleArray[i][j].number) ;
+// 				// console.log(questionArray) ;
+// 			}
+// 		}
+// 	}else{
+// 		// 解けなかった時は questionArray[0]~[2] に false を入れて送り返す
+// 		// questionArray[0] = false ;
+// 		// questionArray[1] = false ;
+// 		// questionArray[2] = false ;
+// 	}
+	
+// 	console.timeEnd("solveNumberPlaceTimer") ;
+	
+// 	return questionArray ;
+// } ;
+
+
+
+// /* 正しく 1~9 の組み合わせがおこなわれてるかチェックする */
+// function isTrueNumberPlace(doubleArr){
+
+// 	var resultArray = [] ;
+
+// 	/* 縦もしくは横に数値の重複がないか調べる */
+// 	var nineBoxNumbers = new Array(9) ;
+// 	for(var i=0; i<9; ++i){
+// 		var lineNumbers = [] ;
+// 		var rowNumbers  = [] ;
+		
+// 		for(var j=0; j<9; j++){
+// 			if(doubleArr[i][j].done === true){
+// 				if( isExistInArray(doubleArr[i][j].number, lineNumbers) === false ){
+// 					lineNumbers.push(doubleArr[i][j].number) ;
+// 					// console.log(lineNumbers) ;
+// 				}else{
+// 					console.log("line Error") ;
+// 					resultArray.result = false ;
+// 					resultArray.errorPlaceI = i ;
+// 					resultArray.errorPlaceJ = j ;
+					
+// 					return resultArray ;
+// 				}
+
+// 				/* ここで 3x3 マスの重複について調べる */
+// 				var region = Math.floor(i / 3) * 3 + Math.floor(j / 3) ;
+// 				nineBoxNumbers[region] = [] ;
+// 				if( isExistInArray(doubleArr[i][j].number, nineBoxNumbers[region]) === false ){
+// 					nineBoxNumbers[region].push(doubleArr[i][j].number) ;
+// 					// console.log(nineBoxNumbers[region]) ;
+// 				}else{
+// 					console.log("Box Error") ;
+// 					resultArray.result = false ;
+// 					resultArray.errorPlaceI = i ;
+// 					resultArray.errorPlaceJ = j ;
+					
+// 					return resultArray ;
+// 				}
+// 			}
+// 			if(doubleArr[j][i].done === true){
+// 				if( isExistInArray(doubleArr[j][i].number, rowNumbers) === false ){
+// 					rowNumbers.push(doubleArr[j][i].number) ;
+// 				}else{
+// 					console.log("row Error") ;
+// 					resultArray.result = false ;
+// 					resultArray.errorPlaceI = j ;
+// 					resultArray.errorPlaceJ = i ;
+
+// 					return resultArray ;
+// 				}
+// 			}
+// 		}
+// 	}
+// 	resultArray.result = true ;
+// 	return resultArray ;
+// } ;
+
+
+// /* 与えられた変数が、与えられた配列のいずれかと一致するか */
+// function isExistInArray(targetVariable, array){
+// 	if(targetVariable === undefined || array === undefined){return undefined ;}
+// 	for(var i=0; i<array.length; ++i){
+// 		if(targetVariable === array[i]){
+// 			return true ;
+// 		}
+// 	}
+// 	return false ;
+// } ;
+
+// /* タテ・ヨコ・3x3 ボックス を見て、重複する値を候補から消すことを繰り返す */
+// function reduceCandidates(doubleArr){
+
+// 	var changeCandidate = -1 ;
+// 	while(changeCandidate !== 0){
+// 		// console.log(changeCandidate) ;
+// 		changeCandidate = 0 ;  // 候補が削られたとき ++changeCandidate
+// 		for(var i=0; i<9; ++i){
+// 			for(var j=0; j<9; ++j){
+// 				if(doubleArr[i][j].done === false){
+// 					for(var m=0; m<9; ++m){
+// 						/* タテ・ヨコの重複する数値は候補 candidate から消す */
+// 						if( (doubleArr[i][m].done === true)
+// 							&& (doubleArr[i][j].candidate.search(doubleArr[i][m].number) !== -1)
+// 							&& (m !== j) ){
+// 							doubleArr[i][j].candidate =
+// 								doubleArr[i][j].candidate.replace( RegExp(doubleArr[i][m].number), "" ) ;
+// 							++changeCandidate ;
+// 						}
+// 						if( (doubleArr[m][j].done === true)
+// 							&& (doubleArr[i][j].candidate.search(doubleArr[m][j].number) !== -1)
+// 							&& (m !== i) ){
+// 							doubleArr[i][j].candidate =
+// 								doubleArr[i][j].candidate.replace( RegExp(doubleArr[m][j].number), "" ) ;
+// 							++changeCandidate ;
+// 						}
+// 					}
+// 					/* nineBoxNumbers ごとの重複を候補から外す */
+// 					var mStart = Math.floor(i / 3) * 3 ;
+// 					var nStart = Math.floor(j / 3) * 3 ;
+// 					for(var m = mStart; m < mStart + 3; ++m){
+// 						for(var n = nStart; n < nStart + 3; ++n){
+// 							if( (doubleArr[m][n].done === true)
+// 								&& (doubleArr[i][j].candidate.search(doubleArr[m][n].number) !== -1)
+// 								&& (m !== i && n !== j) ){
+// 								doubleArr[i][j].candidate =
+// 									doubleArr[i][j].candidate.replace
+// 								( RegExp(doubleArr[m][n].number), "" ) ;
+// 								++changeCandidate ;
+// 							}
+// 						}
+// 					}
+
+// 					doubleArr[i][j].number =
+// 						parseInt(doubleArr[i][j].candidate) ;
+					
+// 					// 候補が削られ、一意に定まったならそれを代入
+// 					if(String(doubleArr[i][j].candidate).length === 1){
+// 						doubleArr[i][j].number =
+// 							parseInt(doubleArr[i][j].candidate) ;
+// 						doubleArr[i][j].done = true ;
+// 						// console.log("decide One: " + doubleArr[i][j].candidate + ", i: " + i + ", j: " + j + " " + doubleArr[i][j].done) ;
+// 					}
+// 				}
+// 			}
+// 		}
+// 	}
+// 	return doubleArr ;
+// } ;
+
+
+// /* i 個に候補が絞れてる場合は、ためしに入れてみる */
+// function tryChoiceCandidate(doubleArr, i){
+// 	for(var i=0; i<9; ++i){
+// 		for(var j=0; j<9; ++j){
+// 			if( String(doubleArr[i][j].candidate).length === i ){
+// 				for(var k=0; k<i; ++k){
+// 					doubleArr[i][j].number = parseInt( String(doubleArr[i][j].candidate).charAt(k) ) ;
+// 					doubleArr[i][j].done = true ;
+// 					doubleArr[i][j].candidate = undefined ;
+
+// 					doubleArr = reduceCandidates(doubleArr) ;
+// 					if( isComplete(doubleArr) === true ){
+// 						return doubleArr ;
+// 					}
+// 				}
+// 			}
+// 		}
+// 	}
+// 	return doubleArr ;
+// } ;
+
+
+// /* 全てが done か調べる */
+// function isComplete(answeredArray){
+// 	for(var i=0; i<9; ++i){
+// 		for(var j=0; j<9; ++j){
+// 			if(answeredArray[i][j].done !== true){
+// 				return false ;
+// 			}
+// 		}
+// 	}
+// 	return true ;
+// } ;

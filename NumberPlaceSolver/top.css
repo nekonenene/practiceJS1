@@ -49,10 +49,18 @@ body {
 
 /*----- メインデザイン ------*/
 
-input.numberPlace{
+form {
+		margin : 20px 15px ;
+}
+
+input.numberPlaceForm{
 		width : 4ch ;
 		margin : 0 ;
 		background-color : #dfeeff ;
+}
+
+input.numberPlaceForm:focus{
+		background-color : #ffeeff ;
 }
 
 /* Turn Off Number Input Spinners */
@@ -60,6 +68,10 @@ input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button { 
 	-webkit-appearance: none; 
 	margin: 0; 
+}
+
+input[type=button] {
+		margin : 3px 8px 5px 0px ;
 }
 
 body {  /* 上下左右に余白が入らないように */
