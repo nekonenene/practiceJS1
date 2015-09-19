@@ -2,6 +2,8 @@ window.addEventListener("load", function () {
 	"use strict" ;
 	
 	console.time("windowLoadFunctions") ;
+	var snp = new SolveNumberPlace() ;
+	snp.mainProcess() ;
 	
 	/* フォームと実行ボタンを HTML に書き込む */
 	var inputFormNumberPlaceElement = document.getElementById("inputFormNumberPlace") ;
@@ -211,46 +213,178 @@ function submitNumbers(){
 	return numberPlaceNumbers ;
 } ;
 
+
 /******** SolveNumberPlace Object ********/
 var SolveNumberPlace = function(questionArray){
 	this.questionArray = questionArray ;
-	this.regionWidth   = 3 ;
-	this.regionHeight  = 3 ;
-	
-	/* ボックス全体の長さ、フォームの数を規定 */
-	this.wholeBoxSize = this.regionWidth * this.regionHeight ;
-	this.wholeBoxFormAmount = this.wholeBoxSize * this.wholeBoxSize ;
-	
-	if(this.questionArray === undefined || this.questionArray.length < this.wholeBoxSize * this.wholeBoxSize){
-		console.log("*Error* Question array is not legal.") ;
-		console.log("start running test mode now.") ;
+	var _regionWidth   = 3 ;
+	var _regionHeight  = 3 ;
+
+	this.setRegionWidth = function(regionWidth){
+		if(0 < regionWidth){
+			_regionWidth = parseInt(regionWidth) ;
+		}
+	} ;
+	this.getRegionWidth = function(){
+		return _regionWidth ;
+	} ;
+
+	this.setRegionHeight = function(regionHeight){
+		if(0 < regionHeight){
+		_regionHeight = parseInt(regionHeight) ;
+		}
+	} ;
+	this.getRegionHeight = function(){
+		return _regionHeight ;
+	} ;
+} ;
 		
-		this.regionWidth = 3 ;
-		this.regionHeight = 3 ;
-		questionArray = [
-		    , ,8,2, ,3,1, , ,
-		    , ,6,1, ,5,8, , ,
-		    1,5, , , , , ,3,9,
-		    4,1, ,6, ,9, ,5,8,
-		    , , , ,2, , , , ,
-		    6,9, ,5, ,1, ,2,4,
-		    8,3, , , , , ,7,6,
-		    , ,5,3, ,4,9, , ,
-		    , ,9,7, ,8,5, ,  ] ;
+
+SolveNumberPlace.prototype = {
+	mainProcess : function(){
+		this.adjustQuestionArray() ;
+		this.putInTwoDimensionalArray() ;
+		this.isLegalNumberPlace() ;
+	} ,
+
+	/* 要求された １領域のタテヨコの長さに合わせて、questionArray を調整 */
+	adjustQuestionArray : function(){
+		/* ボックス全体の長さ、フォームの数を規定 */
+		this.wholeBoxSize = this.getRegionWidth() * this.getRegionHeight() ;
+		this.wholeBoxAmount = this.wholeBoxSize * this.wholeBoxSize ;
+
+		/* 与えられた配列の数が、全体のフォーム数より少ないならエラー処理 */
+		if(this.questionArray === undefined || this.questionArray.length < this.wholeBoxAmount){
+			console.log("*Error* Question array is not legal.") ;
+			console.log("start running test mode now.") ;
+			/* テスト配列を代入（エラー時） */
+			this.assignTestArray() ;
+		}else if(this.questionArray.length > this.wholeBoxAmount){
+			/* 逆に多いなら、フォーム数の数だけ切り取る */
+			this.questionArray = this.questionArray(0, this.wholeBoxAmount) ;
+		}
+
+		/* 配列の中身が ボックスに入力する番号 以外の値なら、 undefined を代入する */
+		for(var i=0; i < this.questionArray.length; ++i){
+			var pushValue = this.questionArray[i] ;
+			pushValue = String(pushValue).replace(/[０-９]/g, function(em){ // 全角は直す
+				return String.fromCharCode(em.charCodeAt(0) - 0xFEE0);
+			});
+			pushValue = parseInt(pushValue) ; // 整数に直す
+
+			
+			if( (0 < pushValue) && (pushValue <= this.wholeBoxSize) ){
+				this.questionArray[i] = pushValue ;
+			}else{
+				this.questionArray[i] = undefined ;
+			}
+		}
+	} ,
+
+	assignTestArray : function(){
+		this.setRegionWidth(3)  ;
+		this.setRegionHeight(3) ;
+		this.wholeBoxSize = this.getRegionWidth() * this.getRegionHeight() ;
+		this.wholeBoxAmount = this.wholeBoxSize * this.wholeBoxSize ;
+		// テスト用の配列 を代入する
+		this.questionArray = [
+			 , ,8,2, ,3,1, , ,
+			 , ,6,1, ,5,8, , ,
+			1,5, , , , , ,3,9,
+			4,1, ,6, ,9, ,5,8,
+			 , , , ,2, , , , ,
+			6,9, ,5, ,1, ,2,4,
+			8,3, , , , , ,7,6,
+			 , ,5,3, ,4,9, , ,
+			 , ,9,7, ,8,5, ,  ] ;
+	} ,
+
+	/* questionArray は一次元配列なので、扱いやすいよう二次元配列に整え、代入 */
+	putInTwoDimensionalArray : function(){
+		this.twoDimensionalQuestionArray = [] ;
+		
+		for(var i=0; i < this.wholeBoxSize; ++i){
+			this.twoDimensionalQuestionArray[i] = [] ;
+			for(var j=0; j < this.wholeBoxSize; ++j){
+				this.twoDimensionalQuestionArray[i][j] = {
+					number : this.questionArray[i * this.wholeBoxSize + j],
+					done : false,
+					candidates : []
+				} ;
+				if(this.twoDimensionalQuestionArray[i][j].number !== undefined){
+					this.twoDimensionalQuestionArray[i][j].done = true ;
+					this.twoDimensionalQuestionArray[i][j].candidates = undefined ;
+				}else{
+					/* 値の入っていないマスは、1~wholeBoxSize を候補値として入れる */
+					for(var k=1; k <= this.wholeBoxSize; ++k){
+						this.twoDimensionalQuestionArray[i][j].candidates.push(k) ;
+					}
+				}
+			}
+		}
+	} ,
+
+	/* １列・１行・１領域内に数値の重複がないか調べる */
+	isLegalNumberPlace : function(){
+		var oneRegion   = [] ;
+		for(var i=0; i<9; ++i){
+			var lineNumbers = [] ;
+			var rowNumbers  = [] ;
+			
+			for(var j=0; j<9; j++){
+				if(this.twoDimensionalQuestionArray[i][j].done === true){
+					/* 横について */
+					if( this.isExistInArray(this.twoDimensionalQuestionArray[i][j].number, lineNumbers) === false ){
+						lineNumbers.push(this.twoDimensionalQuestionArray[i][j].number) ;
+						// console.log(lineNumbers) ;
+					}else{
+						console.log("line Error") ;
+						this.overlapNumberPlace = [ i, j ] ;
+						return false ;
+					}
+
+					/* ここで １領域内の重複について調べる */
+					var region = Math.floor(i / this.getRegionWidth()) * this.getRegionWidth()  + Math.floor(j / this.getRegionHeight()) ;
+					// TODO: この上の一行、どっちが Width で どっちが Height なのか自信ないので確認
+					oneRegion[region] = [] ;
+					if( this.isExistInArray(this.twoDimensionalQuestionArray[i][j].number, oneRegion[region]) === false ){
+						oneRegion[region].push(this.twoDimensionalQuestionArray[i][j].number) ;
+						// console.log(oneRegion[region]) ;
+					}else{
+						console.log("Box Error") ;
+						this.overlapNumberPlace = [ i, j ] ;
+						return false ;
+					}
+				}
+				/* 縦について */
+				if(this.twoDimensionalQuestionArray[j][i].done === true){
+					if( isExistInArray(this.twoDimensionalQuestionArray[j][i].number, rowNumbers) === false ){
+						rowNumbers.push(this.twoDimensionalQuestionArray[j][i].number) ;
+					}else{
+						console.log("row Error") ;
+						this.overlapNumberPlace = [ j, i ] ;
+						return false ;
+					}
+				}
+			}
+		}
+		return true ;
+	} ,
+
+	/* 与えられた変数が、与えられた配列のいずれかと一致するか */
+	isExistInArray : function(targetVariable, array){
+		if(targetVariable === undefined || array === undefined){return undefined ;}
+		for(var i=0; i<array.length; ++i){
+			if(targetVariable === array[i]){
+				return true ;
+			}
+		}
+		return false ;
 	}
+
+	
 } ;
 
-SolveNumberPlace.prototype.setRegionHeight = function(regionHeight){
-	if(0 < regionHeight){
-		this.regionHeight = parseInt(regionHeight) ;
-	}
-} ;
-
-SolveNumberPlace.prototype.setRegionWidth = function(regionWidth){
-	if(0 < regionWidth){
-		this.regionWidth = parseInt(regionWidth) ;
-	}
-} ;
 
 
 /* 与えられた 81 個の数列から、ナンバープレースを解く */
