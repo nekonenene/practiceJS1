@@ -245,6 +245,7 @@ SolveNumberPlace.prototype = {
 		this.adjustQuestionArray() ;
 		this.putInTwoDimensionalArray() ;
 		this.isLegalNumberPlace() ;
+		this.reduceCandidates() ;
 	} ,
 
 	/* 要求された １領域のタテヨコの長さに合わせて、questionArray を調整 */
@@ -321,17 +322,18 @@ SolveNumberPlace.prototype = {
 					}
 				}
 			}
+			// console.log(this.twoDimensionalQuestionArray[i][0].candidates) ;
 		}
 	} ,
 
 	/* １列・１行・１領域内に数値の重複がないか調べる */
 	isLegalNumberPlace : function(){
 		var oneRegion   = [] ;
-		for(var i=0; i<9; ++i){
+		for(var i=0; i<this.wholeBoxSize; ++i){
 			var lineNumbers = [] ;
 			var rowNumbers  = [] ;
 			
-			for(var j=0; j<9; j++){
+			for(var j=0; j<this.wholeBoxSize; j++){
 				if(this.twoDimensionalQuestionArray[i][j].done === true){
 					/* 横について */
 					if( this.isExistInArray(this.twoDimensionalQuestionArray[i][j].number, lineNumbers) === false ){
@@ -344,7 +346,7 @@ SolveNumberPlace.prototype = {
 					}
 
 					/* ここで １領域内の重複について調べる */
-					var region = Math.floor(i / this.getRegionWidth()) * this.getRegionWidth()  + Math.floor(j / this.getRegionHeight()) ;
+					var region = Math.floor(i / this.getRegionHeight()) * this.getRegionHeight()  + Math.floor(j / this.getRegionWidth()) ;
 					// TODO: この上の一行、どっちが Width で どっちが Height なのか自信ないので確認
 					oneRegion[region] = [] ;
 					if( this.isExistInArray(this.twoDimensionalQuestionArray[i][j].number, oneRegion[region]) === false ){
@@ -358,7 +360,7 @@ SolveNumberPlace.prototype = {
 				}
 				/* 縦について */
 				if(this.twoDimensionalQuestionArray[j][i].done === true){
-					if( isExistInArray(this.twoDimensionalQuestionArray[j][i].number, rowNumbers) === false ){
+					if( this.isExistInArray(this.twoDimensionalQuestionArray[j][i].number, rowNumbers) === false ){
 						rowNumbers.push(this.twoDimensionalQuestionArray[j][i].number) ;
 					}else{
 						console.log("row Error") ;
@@ -380,9 +382,136 @@ SolveNumberPlace.prototype = {
 			}
 		}
 		return false ;
-	}
+	} ,
+
+	/* 候補を消していく */
+	reduceCandidates : function(){
+		do{
+			this.numberOfTimesChangedCandidates = 0 ;
+			this.numberOfTimesPutCandidate = 0 ;
+			
+			this.lookOverlapForReduceCandidates() ;
+			this.putUniqueCandidateNumber() ;
+
+		}while(this.numberOfTimesPutCandidate > 0) ;
+
+		/* 値の重複を消すだけでは解決できなかった場合、候補の値を試しに入れてみる */
+		while(this.isCompleteAnswer === false){
+			console.log("戦いは続く") ;
+			break ;
+		} ;
+		// 答えを見てみる
+		console.log(this.outputTwoDimensionalQuestionArray()) ;
+	} ,
+
+	/* 周辺フォームの自分自身との重複を見る */
+	lookOverlapForReduceCandidates : function(){
+		do{
+			this.numberOfTimesChangedCandidates = 0 ;  // 候補が削られたとき ++this.numberOfTimesChangedCandidates
+			for(var i = 0; i < this.wholeBoxSize; ++i){
+				 // console.log(this.twoDimensionalQuestionArray[i][0].candidates) ;
+
+				for(var j = 0; j < this.wholeBoxSize; ++j){
+					if(this.twoDimensionalQuestionArray[i][j].done === false){
+						var aroundNumbers = [] ;
+						/* 縦・横・領域内で重複する値を、候補から削る */
+						for(var m = 0; m < this.wholeBoxSize; ++m){
+							/* 横行を見る */
+							if( (this.twoDimensionalQuestionArray[i][m].done === true) && (m !== j) ){
+								if(this.isExistInArray( this.twoDimensionalQuestionArray[i][m].number, aroundNumbers) === false){
+									aroundNumbers.push(this.twoDimensionalQuestionArray[i][m].number) ;
+								}
+							}
+							/* 縦列を見る */
+							if( (this.twoDimensionalQuestionArray[m][j].done === true) && (m !== i) ){
+								if(this.isExistInArray( this.twoDimensionalQuestionArray[m][j].number, aroundNumbers) === false){
+									aroundNumbers.push(this.twoDimensionalQuestionArray[m][j].number) ;
+								}
+							}
+						}
+						/* 領域内を見る */
+						var mStart = Math.floor(i / this.getRegionHeight() ) * this.getRegionHeight() ;
+						var nStart = Math.floor(j / this.getRegionWidth()  ) * this.getRegionWidth() ;
+						for(var m = mStart; m < ( mStart + this.getRegionHeight() ); ++m){
+							for(var n = nStart; n < ( nStart + this.getRegionWidth() ); ++n){
+								if( (this.twoDimensionalQuestionArray[m][n].done === true) && (m !== i) && (n !== j) ){
+									if(this.isExistInArray( this.twoDimensionalQuestionArray[m][n].number, aroundNumbers) === false){
+										aroundNumbers.push(this.twoDimensionalQuestionArray[m][n].number) ;
+									}
+								}
+							}
+						}
+						/* 候補の値一覧から、aroundNumbers にある値は消去する */
+						// console.log("aroundNumbers : " + aroundNumbers) ;
+						this.twoDimensionalQuestionArray[i][j].candidates =
+							this.dropArray( this.twoDimensionalQuestionArray[i][j].candidates, aroundNumbers ) ;
+					}
+				}
+			}
+		}while(this.numberOfTimesChangedCandidates > 0) ;
+	} ,
+
+	/* targetArray から dropperArray と重複する値を引き抜く */
+	dropArray : function(targetArray, dropperArray){
+		// console.log("#" + targetArray) ; <- ヤバイ
+		// console.log(dropperArray) ;
+		var filteredArray = [] ;
+		for(var i = 0; i < targetArray.length; ++i){
+			var equalFlag = false ;
+			for(var j = 0; j < dropperArray.length; ++j){
+				/* 重複する値があったら this.numberOfTimesChangedCandidates を１増やす */
+				if(targetArray[i] === dropperArray[j]){
+					++this.numberOfTimesChangedCandidates ;
+					equalFlag = true ;
+				}
+			}
+			if(equalFlag === false){
+				filteredArray.push(targetArray[i]) ;
+			}
+		}
+		return filteredArray ;
+	} ,
+
+	/* 候補の値が１つに絞られたら、その値を代入 */
+	putUniqueCandidateNumber : function(){
+		for(var i = 0; i < this.wholeBoxSize; ++i){
+			for(var j = 0; j < this.wholeBoxSize; ++j){
+				if( (this.twoDimensionalQuestionArray[i][j].done === false) &&
+					(this.twoDimensionalQuestionArray[i][j].candidates.length === 1) ){
+					++this.numberOfTimesPutCandidate ;
+					this.twoDimensionalQuestionArray[i][j] =
+						{ number : Number(this.twoDimensionalQuestionArray[i][j].candidates[0]),
+						  done : true,
+						  candidates : undefined } ;
+				}
+			}
+		}
+	} ,
+
+	/* 全てが done か調べる */
+	isCompleteAnswer : function(){
+		for(var i=0; i<9; ++i){
+			for(var j=0; j<9; ++j){
+				if(this.twoDimensionalQuestionArray[i][j].done !== true){
+					return false ;
+				}
+			}
+		}
+		return true ;
+	} ,
 
 	
+	/* テスト時に配列を簡単に出せるための機構 */
+	outputTwoDimensionalQuestionArray : function(){
+		var outputArray = [] ;
+		for(var i = 0; i < this.wholeBoxSize; ++i){
+			for(var j = 0; j < this.wholeBoxSize; ++j){
+				outputArray.push(this.twoDimensionalQuestionArray[i][j].number) ;
+			}
+		}
+		return outputArray ;
+	}
+
 } ;
 
 
