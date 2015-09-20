@@ -484,14 +484,18 @@ SolveNumberPlace.MakeForm.prototype = {
 				/* 英数字・記号を入力したとき */
 				document.numberPlaceFormArea.numberPlaceForm[i * this.wholeBoxSize + j].addEventListener("keyup", function(pushedKey){
 					var pushedKeyCode = pushedKey.keyCode ;
-					if( (pushedKeyCode === 32) || (48 <= pushedKeyCode && pushedKeyCode <= 90) || (96 <= pushedKeyCode && pushedKeyCode <= 111) || (186 <= pushedKeyCode && pushedKeyCode <= 191) ){
+					if( (pushedKeyCode === 32) // space key
+						|| (48 <= pushedKeyCode && pushedKeyCode <= 90) // a-z0-9
+						|| (96 <= pushedKeyCode && pushedKeyCode <= 111) // ten key
+						|| (186 <= pushedKeyCode && pushedKeyCode <= 191) ){ // symbol
 						targetObject.moveSideForm(pushedKey.keyCode, this) ;
 					}
 				} ) ;
 				/* 矢印キー、BackSpaceキーを押したとき */
 				document.numberPlaceFormArea.numberPlaceForm[i * this.wholeBoxSize + j].addEventListener("keydown", function(pushedKey){
 					var pushedKeyCode = pushedKey.keyCode ;
-					if( (pushedKey.keyCode === 8) || (37 <= pushedKeyCode && pushedKeyCode <= 40) ){
+					if( (pushedKey.keyCode === 8) // BackSpace
+						|| (37 <= pushedKeyCode && pushedKeyCode <= 40) ){ // arrow key
 						targetObject.moveSideForm(pushedKey.keyCode, this) ;
 					}
 				} ) ;
