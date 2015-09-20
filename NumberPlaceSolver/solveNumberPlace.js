@@ -484,7 +484,7 @@ SolveNumberPlace.MakeForm.prototype = {
 				/* 英数字・記号を入力したとき */
 				document.numberPlaceFormArea.numberPlaceForm[i * this.wholeBoxSize + j].addEventListener("keyup", function(pushedKey){
 					var pushedKeyCode = pushedKey.keyCode ;
-					if( (48 <= pushedKeyCode && pushedKeyCode <= 90) || (96 <= pushedKeyCode && pushedKeyCode <= 111) || (186 <= pushedKeyCode && pushedKeyCode <= 191) ){
+					if( (pushedKeyCode === 32) || (48 <= pushedKeyCode && pushedKeyCode <= 90) || (96 <= pushedKeyCode && pushedKeyCode <= 111) || (186 <= pushedKeyCode && pushedKeyCode <= 191) ){
 						targetObject.moveSideForm(pushedKey.keyCode, this) ;
 					}
 				} ) ;
