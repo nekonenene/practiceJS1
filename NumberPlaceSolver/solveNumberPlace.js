@@ -93,7 +93,7 @@ SolveNumberPlace.Solve.prototype = {
 	setQuestionArray : function(_questionArray){
 		this.questionArray = [] ;
 		if(_questionArray === undefined){
-			console.log("*Error* Question array is NOT legal. test mode starts now.") ;
+			console.log("*Error* Question array is NOT exist. test mode starts now.") ;
 			/* テスト配列を代入（エラー時） */
 			this.assignTestArray() ;
 		}else{
@@ -111,7 +111,7 @@ SolveNumberPlace.Solve.prototype = {
 				this.questionArray.push(undefined) ;
 			}
 		}
-		console.log(this.questionArray.length) ;
+		// console.log(this.questionArray.length) ;
 	} ,
 
 	/* テスト用の配列 を代入する */
@@ -245,14 +245,13 @@ SolveNumberPlace.Solve.prototype = {
 		this.lookOverlapForReduceCandidates() ;
 
 		/* すべてが done なら処理は終わり */
-		if(this.isCompleteAnswer() === true){
-			this.progress.complete = true ;
+		if(this.progress.complete === true){
 			return true ;
 		}else{
 			/* 解決できていなかった場合、候補の値の１つを入れてみる */
 			/* 経験上、候補は上の段階で最小２個まで絞られるはずだが、いちおう4まで */
 			var FIRST_CHOICE_FROM_X_CANDIDATE = 2 ;
-			var LAST_CHOICE_FROM_X_CANDIDATE = 4 ;
+			var LAST_CHOICE_FROM_X_CANDIDATE = 2 ;
 			
 			// console.log("難しい問題だね・・・") ;
 			for(var i = FIRST_CHOICE_FROM_X_CANDIDATE; i <= LAST_CHOICE_FROM_X_CANDIDATE; ++i){
@@ -268,6 +267,7 @@ SolveNumberPlace.Solve.prototype = {
 	/* 周辺フォームの自分自身との重複を見る */
 	lookOverlapForReduceCandidates : function(){
 		do{
+			console.log(this.questionArrayObject.candidates) ;  // 経過を表示してみる
 			var someChanged = false ;
 			for(var y = 0; y < this.wholeBoxSize; ++y){
 				for(var x = 0; x < this.wholeBoxSize; ++x){
@@ -310,8 +310,12 @@ SolveNumberPlace.Solve.prototype = {
 					}
 				}
 			}
-			console.log(this.questionArrayObject.number) ;  // 経過を表示してみる
 		}while(someChanged === true) ;
+
+		if(this.isCompleteAnswer() === true){
+			this.progress.complete = true ;
+		}
+		return this.progress.complete ;
 	} ,
 
 	/* targetArray から dropperArray と重複する値を引き抜く */
@@ -358,7 +362,7 @@ SolveNumberPlace.Solve.prototype = {
 
 	/* targetCandidatesAmount 個に候補が絞れてる場合は、ためしに入れてみる */
 	tryChoiceCandidate : function(targetFormCandidatesAmount){
-		console.log("targetCandidates : " + targetFormCandidatesAmount) ;
+		console.log(targetFormCandidatesAmount + " 個の候補から選ぶ") ;
 		do{
 			var previousChangedTimes = this.progress.changedTimes ;
 
@@ -366,32 +370,28 @@ SolveNumberPlace.Solve.prototype = {
 				if( this.questionArrayObject.done[i] === false ){
 					var candidatesLength = this.questionArrayObject.candidates[i].length ;
 					if( candidatesLength <= targetFormCandidatesAmount ){
+						var saveArray = this.copyFormStatusObject(this.questionArrayObject) ;
+						console.log("save = " + saveArray) ;
 						for(var k = 0; k < candidatesLength; ++k){
-							console.log("k = " + k) ;
+							console.log(k + " 番目の候補値を入れてみる") ;
 							/* 候補を入れてみる前に、一時的に配列を保存しておく */
-							var saveArray = this.copyFormStatusObject(this.questionArrayObject) ;
-							console.log(saveArray) ;
 							/* 候補のうちのひとつ、 k 番目の候補を入れてみる */
 							++this.progress.changedTimes ;
 							this.questionArrayObject.number[i] = this.questionArrayObject.candidates[i][k] ;
 							this.questionArrayObject.done[i] = true ;
 							this.questionArrayObject.candidates[i] = undefined ;
-							/* lookOverlapForReduceCandidates() の意義がある限り回し続ける */
 							this.lookOverlapForReduceCandidates() ;
-							if( this.isLegalNumberPlace(this.questionArrayObject) === false ){
-								/* 上手く解けず、数値の重複が出たなら一時保存の配列に姿を戻す */
+							if( this.progress.complete === false ){
+								/* 上手く解けないなら一時保存の配列に姿を戻す */
+								console.log("!!!!!") ;
 								this.questionArrayObject = this.copyFormStatusObject(saveArray) ;
 								--this.progress.changedTimes ;
 								this.progress.error = false ;
 								this.progress.errorPlace = [] ;
 							}else{
-								break ;
+								return true ;
 							}
 						}
-						if( this.isCompleteAnswer(this.questionArrayObject) === true ){
-							return true ;
-						}
-
 					}
 				}
 			}
@@ -401,8 +401,8 @@ SolveNumberPlace.Solve.prototype = {
 
 	/* AFormStatus Object のコピーを作る */
 	copyFormStatusObject : function(_formStatusObject){
-		var saveArray = new SolveNumberPlace.Solve.AFormStatus(_formStatusObject) ;
-		for(var i = 0; i < _formStatusObject.length; ++i){
+		var saveArray = new SolveNumberPlace.Solve.AFormStatus(this.wholeBoxAmount) ;
+		for(var i = 0; i < this.wholeBoxAmount; ++i){
 			saveArray.done[i]       = _formStatusObject.done[i] ;
 			saveArray.number[i]     = _formStatusObject.number[i] ;
 			saveArray.candidates[i] = _formStatusObject.candidates[i] ;
