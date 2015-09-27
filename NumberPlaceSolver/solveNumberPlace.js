@@ -10,6 +10,14 @@ window.addEventListener("load", function () {
 	makeForm.mainProcess() ;
 	var makeForm2 = new SolveNumberPlace.MakeForm(3, 3) ; // ちゃんと作り直されて動くかの確認
 	makeForm2.mainProcess() ;
+
+	var remakeFormsButtonEle = document.getElementById("makeFormsButton") ;
+	remakeFormsButtonEle.onclick = function(){
+		var regionWidth  = document.getElementById("setRegionWidth").value ;
+		var regionHeight = document.getElementById("setRegionHeight").value ;
+		var remakeForms = new SolveNumberPlace.MakeForm(regionWidth, regionHeight) ;
+		remakeForms.mainProcess() ;
+	} ;
 	console.timeEnd("windowLoadFunctions") ;
 	
 }, false) ;
@@ -25,21 +33,21 @@ function SolveNumberPlace(){} ;
 
 /******** SolveNumberPlace.Solve Object ********/
 /*** 与えられた配列から、ナンバープレースを解く ***/
-SolveNumberPlace.Solve = function(_questionArray, _regionHeight, _regionWidth){
+SolveNumberPlace.Solve = function(_questionArray, _regionWidth, _regionHeight){
 	"use strict" ;
-	if( (_regionHeight !== undefined) && (0 < _regionHeight) && (_regionHeight < 10) ){
-		this.regionHeight  = _regionHeight ;
-	}else{
-		this.regionHeight = 3 ;
-	} ;
-
 	if( (_regionWidth !== undefined) && (0 < _regionWidth) && (_regionWidth < 10) ){
 		this.regionWidth  = _regionWidth ;
 	}else{
 		this.regionWidth = 3 ;
 	} ;
 
-	this.wholeBoxSize = this.regionHeight * this.regionWidth ;  // 縦or横に並ぶフォームの数
+	if( (_regionHeight !== undefined) && (0 < _regionHeight) && (_regionHeight < 10) ){
+		this.regionHeight  = _regionHeight ;
+	}else{
+		this.regionHeight = 3 ;
+	} ;
+
+	this.wholeBoxSize = this.regionWidth * this.regionHeight ;  // 縦or横に並ぶフォームの数
 	this.wholeBoxAmount = this.wholeBoxSize * this.wholeBoxSize ;  // フォームの全体個数
 
 	this.setQuestionArray(_questionArray) ;
@@ -416,16 +424,16 @@ SolveNumberPlace.Solve.prototype = {
 /*** SolveNumberPlace.MakeForm   **************************/
 /**********************************************************/
 /*********************   入力のためのフォームを用意する ***/
-SolveNumberPlace.MakeForm = function(_regionHeight, _regionWidth){
-	if(_regionHeight === undefined){
-		this.regionHeight = 3 ;
-	}else{
-		this.regionHeight = _regionHeight ;
-	}
+SolveNumberPlace.MakeForm = function(_regionWidth, _regionHeight){
 	if(_regionWidth === undefined){
 		this.regionWidth = 3 ;
 	}else{
 		this.regionWidth = _regionWidth ;
+	}
+	if(_regionHeight === undefined){
+		this.regionHeight = 3 ;
+	}else{
+		this.regionHeight = _regionHeight ;
 	}
 
 	this.wholeBoxSize = this.regionHeight * this.regionWidth ;
@@ -605,7 +613,7 @@ SolveNumberPlace.MakeForm.prototype = {
 		}
 
 		/* 今作った questionArray を solveObject._questionArray にセットしたのち Solve させる */
-		this.solveObject = new SolveNumberPlace.Solve(questionArray, this.regionHeight, this.regionWidth) ;
+		this.solveObject = new SolveNumberPlace.Solve(questionArray, this.regionWidth, this.regionHeight) ;
 		console.time("Solve Time") ;
 		this.solveObject.mainProcess() ;
 		console.timeEnd("Solve Time") ;
