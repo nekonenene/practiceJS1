@@ -251,7 +251,7 @@ SolveNumberPlace.Solve.prototype = {
 			/* 解決できていなかった場合、候補の値の１つを入れてみる */
 			/* 経験上、候補は上の段階で最小２個まで絞られるはずだが、いちおう4まで */
 			var FIRST_CHOICE_FROM_X_CANDIDATE = 2 ;
-			var LAST_CHOICE_FROM_X_CANDIDATE = 2 ;
+			var LAST_CHOICE_FROM_X_CANDIDATE  = 4 ;
 			
 			// console.log("難しい問題だね・・・") ;
 			for(var i = FIRST_CHOICE_FROM_X_CANDIDATE; i <= LAST_CHOICE_FROM_X_CANDIDATE; ++i){
@@ -267,7 +267,7 @@ SolveNumberPlace.Solve.prototype = {
 	/* 周辺フォームの自分自身との重複を見る */
 	lookOverlapForReduceCandidates : function(){
 		do{
-			console.log(this.questionArrayObject.candidates) ;  // 経過を表示してみる
+			// console.log(this.questionArrayObject.candidates) ;  // 経過を表示してみる
 			var someChanged = false ;
 			for(var y = 0; y < this.wholeBoxSize; ++y){
 				for(var x = 0; x < this.wholeBoxSize; ++x){
@@ -371,7 +371,7 @@ SolveNumberPlace.Solve.prototype = {
 					var candidatesLength = this.questionArrayObject.candidates[i].length ;
 					if( candidatesLength <= targetFormCandidatesAmount ){
 						var saveArray = this.copyFormStatusObject(this.questionArrayObject) ;
-						console.log("save = " + saveArray) ;
+						// console.log("save = " + saveArray) ;
 						for(var k = 0; k < candidatesLength; ++k){
 							console.log(k + " 番目の候補値を入れてみる") ;
 							/* 候補を入れてみる前に、一時的に配列を保存しておく */
@@ -521,6 +521,7 @@ SolveNumberPlace.MakeForm.prototype = {
 				document.numberPlaceFormArea.numberPlaceForm[i * this.wholeBoxSize + j].addEventListener("keydown", function(pushedKey){
 					var pushedKeyCode = pushedKey.keyCode ;
 					if( (pushedKey.keyCode === 8) // BackSpace
+						|| (pushedKey.keyCode ===13) // Enter
 						|| (37 <= pushedKeyCode && pushedKeyCode <= 40) ){ // arrow key
 						targetObject.moveSideForm(pushedKey.keyCode, this) ;
 					}
@@ -553,6 +554,10 @@ SolveNumberPlace.MakeForm.prototype = {
 				var nextFormIndex = lowerSideIndex ;
 				break ;
 			}
+		}
+		/* Enter キーは、右矢印キーと同じ効果 */
+		else if(pushedKeyCode === 13){
+			var nextFormIndex = rightSideIndex ;
 		}
 		/* BackSpace 押したら、左のマスを消しつつそのマスへ */
 		else if(pushedKeyCode === 8){
@@ -601,7 +606,9 @@ SolveNumberPlace.MakeForm.prototype = {
 
 		/* 今作った questionArray を solveObject._questionArray にセットしたのち Solve させる */
 		this.solveObject = new SolveNumberPlace.Solve(questionArray, this.regionHeight, this.regionWidth) ;
+		console.time("Solve Time") ;
 		this.solveObject.mainProcess() ;
+		console.timeEnd("Solve Time") ;
 
 		/* 扱いやすいよう、解答配列を読み取って this.answeredArray に渡す */
 		this.answeredArray = [] ;
@@ -619,10 +626,12 @@ SolveNumberPlace.MakeForm.prototype = {
 		inputTextAreaElement.value = outputString ;
 		outputElement.innerHTML = outputString ;
 
-		/* 解けたとこまでフォームに出力 */
+		/* 解けたところ、もしくはユーザーが入力した値をフォームに出力 */
 		for(var i = 0; i < numberPlaceInputFormsElements.length; ++i){
 			if(this.answeredArray[i] !== undefined){
 				numberPlaceInputFormsElements[i].value = this.answeredArray[i] ;
+			}else if(this.solveObject.questionArray[i] !== undefined){
+				numberPlaceInputFormsElements[i].value = this.solveObject.questionArray[i] ;
 			}else{
 				numberPlaceInputFormsElements[i].value = "" ;
 			}
@@ -650,7 +659,7 @@ SolveNumberPlace.MakeForm.prototype = {
 				console.log("errorPlaceI : " + this.solveObject.progress.errorPlace[0]
 							+ ", errorPlaceJ : " + this.solveObject.progress.errorPlace[1] ) ;
 				/* 重複のある問題箇所のフォームへフォーカス */
-				numberPlaceInputFormsElements[ this.solveObject.progress.errorPlace[0] * this.solveObject.progress.errorPlace[1] ].focus() ;
+				numberPlaceInputFormsElements[ this.solveObject.progress.errorPlace[0] + this.solveObject.progress.errorPlace[1] * this.wholeBoxSize ].focus() ;
 			}else{
 				outputString = "解けませんでした。" ;
 				/* フォームに出力 */
