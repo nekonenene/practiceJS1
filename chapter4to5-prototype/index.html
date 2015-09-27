@@ -20,28 +20,29 @@
 	<body>
 		<div id="site-box">
 			<div id="site-main">
-				<h1>Hello World!!! </h1>
+				<h1>prototype と prototype を使った"継承" </h1>
 				<p>
 					JavaScriptの世界にようこそ
 				</p>
 
-				<pre id ="b012">
-5
-091180422478189X
-774123801013511X
-973736969204716X
-793180803472918X
-358682935182058X
-				</pre>
-
-				<h2>1: </h2>
-				<p>
+				<h2>1: 実際に使ってみる</h2>
+				<p id="output1">
 					h2の文です。loading...1
 				</p>
 
-				<h2>2: </h2>
+				<h2>2: 学んだこと</h2>
 				<p>
-					h2の文です。loading...2
+					prototype では this. で変数を指定するものだと思っていたけど、<br>
+					それはオブジェクトに関連付けられてしまうので、<br>
+					オブジェクトのコンストラクタ以外では変数の宣言に使っちゃあかん、ってわかった。<br>
+					<br>
+					どうなるかって言うと、this.value なんかメソッド内で宣言した日にゃ、<br>
+					その this.value は全体のメソッドで共通になるので、<br>
+					他のメソッドで this.value と仮に宣言したら、同じものを使いまわすことになる。危険。<br>
+					<br>
+					また、 function も変数だから、<br>
+					this.sumDigits で数値を入れる変数を宣言したつもりが、<br>
+					オブジェクトのメソッド function sumDigits() と誤認識されて、わけわからないことになる。<br>
 				</p>
 
 				<h3>さようなら</h3>
@@ -57,7 +58,6 @@
 		</div>
 		
 		<script type="text/javascript" src="top.js" charset="utf-8"></script>
-		<script type="text/javascript" src="b012.js" charset="utf-8"></script>
 
 	</body>
 

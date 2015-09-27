@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+
+<html>
+
+	<head>
+		<meta name="Author" content="nekonenene">
+		<meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
+		<link rel="stylesheet" type="text/css" href="top.css">
+
+		<title>ナンバープレースを解こう！</title>
+
+	</head>
+
+	<body>
+		<div id="site-box">
+			<div id="site-main">
+				<h1>Hello World!!! </h1>
+				<p>
+					JavaScriptの世界にようこそ
+				</p>
+				<p>
+					１領域のヨコの長さ：
+					<select name="setFormSize" id="setRegionWidth" >
+						<option value="1">1</option>
+						<option value="2">2</option>
+						<option value="3" selected>3</option>
+						<option value="4">4</option>
+						<option value="5">5</option>
+						<option value="6">6</option>
+						<option value="7">7</option>
+						<option value="8">8</option>
+						<option value="9">9</option>
+					</select>
+					<br>
+					１領域のタテの長さ：
+					<select name="setFormSize" id="setRegionHeight" >
+						<option value="1">1</option>
+						<option value="2">2</option>
+						<option value="3" selected>3</option>
+						<option value="4">4</option>
+						<option value="5">5</option>
+						<option value="6">6</option>
+						<option value="7">7</option>
+						<option value="8">8</option>
+						<option value="9">9</option>
+					</select>
+					<input type="button" id="makeFormsButton" name="button" value="マス作成">
+				</p>
+
+				<h2>入力欄</h2>
+				<p id="inputFormNumberPlace">
+					loading...input
+				</p>
+				<p>
+					<form id="inputY" accept-charset="utf-8" style="margin:20px 15px;">
+						<textarea id="inputTextArea" placeholder="ここに答えが出るよ" cols="60"  rows="8"></textarea><br>
+					</form>
+				</p>
+
+				<h2>出力</h2>
+				<p id="output">
+					loading...2
+				</p>
+
+			</div>
+		</div>
+
+		<script type="text/javascript" src="makeNumberPlace.js" charset="utf-8"></script>
+		<script type="text/javascript" src="solveNumberPlace.js" charset="utf-8"></script>
+
+	</body>
+
+</html>
