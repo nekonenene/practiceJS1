@@ -527,28 +527,33 @@ SolveNumberPlace.MakeForm.prototype = {
 
 	/* 入力があったときに自動で別のフォームへフォーカスが移るよう、各フォームに設定 */
 	whenInputIntoForm : function(targetObject){
-		for(var i = 0; i < this.wholeBoxSize; ++i){
-			for(var j = 0; j < this.wholeBoxSize; ++j){
-				/* 英数字・記号を入力したとき */
-				document.numberPlaceFormArea.numberPlaceForm[i * this.wholeBoxSize + j].addEventListener("keyup", function(pushedKey){
-					var pushedKeyCode = pushedKey.keyCode ;
-					if( (pushedKeyCode === 32) // space key
-						|| (48 <= pushedKeyCode && pushedKeyCode <= 90) // a-z0-9
-						|| (96 <= pushedKeyCode && pushedKeyCode <= 111) // ten key
-						|| (186 <= pushedKeyCode && pushedKeyCode <= 191) ){ // symbol
-						targetObject.moveSideForm(pushedKey.keyCode, this) ;
-					}
-				} ) ;
-				/* 矢印キー、BackSpaceキーを押したとき */
-				document.numberPlaceFormArea.numberPlaceForm[i * this.wholeBoxSize + j].addEventListener("keydown", function(pushedKey){
-					var pushedKeyCode = pushedKey.keyCode ;
-					if( (pushedKey.keyCode === 8) // BackSpace
-						|| (pushedKey.keyCode ===13) // Enter
-						|| (37 <= pushedKeyCode && pushedKeyCode <= 40) ){ // arrow key
-						targetObject.moveSideForm(pushedKey.keyCode, this) ;
-					}
-				} ) ;
+		try{
+			for(var i = 0; i < this.wholeBoxSize; ++i){
+				for(var j = 0; j < this.wholeBoxSize; ++j){
+					/* 英数字・記号を入力したとき */
+					document.numberPlaceFormArea.numberPlaceForm[i * this.wholeBoxSize + j].addEventListener("keyup", function(pushedKey){
+						var pushedKeyCode = pushedKey.keyCode ;
+						if( (pushedKeyCode === 32) // space key
+							|| (48 <= pushedKeyCode && pushedKeyCode <= 90) // a-z0-9
+							|| (96 <= pushedKeyCode && pushedKeyCode <= 111) // ten key
+							|| (186 <= pushedKeyCode && pushedKeyCode <= 191) ){ // symbol
+							targetObject.moveSideForm(pushedKey.keyCode, this) ;
+						}
+					} ) ;
+					/* 矢印キー、BackSpaceキーを押したとき */
+					document.numberPlaceFormArea.numberPlaceForm[i * this.wholeBoxSize + j].addEventListener("keydown", function(pushedKey){
+						var pushedKeyCode = pushedKey.keyCode ;
+						if( (pushedKey.keyCode === 8) // BackSpace
+							|| (pushedKey.keyCode ===13) // Enter
+							|| (37 <= pushedKeyCode && pushedKeyCode <= 40) ){ // arrow key
+							targetObject.moveSideForm(pushedKey.keyCode, this) ;
+						}
+					} ) ;
+				}
 			}
+		}catch(error){
+			/* たとえば wholeBoxAmount = 1 ならこの警告は発生する */
+			console.log("***Warning*** can't move") ;
 		}
 	} ,
 

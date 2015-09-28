@@ -144,6 +144,9 @@ input[type=number]::-webkit-outer-spin-button {
 	margin: 0; 
 }
 
+#outputTextArea{
+		margin : 20px 15px ;
+}
 
 /*----- 以下、テキストの微変更用 -----*/
 
