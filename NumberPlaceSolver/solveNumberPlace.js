@@ -1,23 +1,31 @@
 
 window.addEventListener("load", function () {
 	"use strict" ;
-	
+
 	console.time("windowLoadFunctions") ;
-	var test = new SolveNumberPlace.Solve() ;
+/*	var test = new SolveNumberPlace.Solve() ;
 	test.setQuestionArray( [7,,,2,,8,,,3,,8,,,1,,,7,,1,,3,,,,2,,9,,6,,,7,,,3,,5,,,4,3,9,,,1,,2,,,6,,,4,,8,,7,,,,1,,2,,9,,,2,,,6,,6,,,5,,3,,,4] ) ;
 	test.mainProcess() ;
-	var makeForm = new SolveNumberPlace.MakeForm(3, 5) ;
-	makeForm.mainProcess() ;
-	var makeForm2 = new SolveNumberPlace.MakeForm(3, 3) ; // ちゃんと作り直されて動くかの確認
-	makeForm2.mainProcess() ;
+*/
+	this.makeForm = new SolveNumberPlace.MakeForm(3, 3) ;
+	this.makeForm.mainProcess() ;
+
+	this.handleEvent = function(event){
+		// console.log(this) ;
+		switch(event.type){
+		case "click" :
+			/* ここの parseInt が超大事 */
+			var regionWidth  = parseInt(document.getElementById("setRegionWidth").value) ;
+			var regionHeight = parseInt(document.getElementById("setRegionHeight").value) ;
+			this.makeForm.setRegionSize(regionWidth, regionHeight) ;
+			this.makeForm.mainProcess() ;
+			break ;
+		}
+	} ;
 
 	var remakeFormsButtonEle = document.getElementById("makeFormsButton") ;
-	remakeFormsButtonEle.onclick = function(){
-		var regionWidth  = document.getElementById("setRegionWidth").value ;
-		var regionHeight = document.getElementById("setRegionHeight").value ;
-		var remakeForms = new SolveNumberPlace.MakeForm(regionWidth, regionHeight) ;
-		remakeForms.mainProcess() ;
-	} ;
+	remakeFormsButtonEle.addEventListener("click", this, false) ;
+
 	console.timeEnd("windowLoadFunctions") ;
 	
 }, false) ;
@@ -27,30 +35,14 @@ window.addEventListener("load", function () {
 /****************************************
 	 package name : SolveNumberPlace 
 	
-		2015/9/12 - 2015/9/20
+		2015/9/12 - 2015/9/28
  ***************************************/
 function SolveNumberPlace(){} ;
 
 /******** SolveNumberPlace.Solve Object ********/
 /*** 与えられた配列から、ナンバープレースを解く ***/
 SolveNumberPlace.Solve = function(_questionArray, _regionWidth, _regionHeight){
-	"use strict" ;
-	if( (_regionWidth !== undefined) && (0 < _regionWidth) && (_regionWidth < 10) ){
-		this.regionWidth  = _regionWidth ;
-	}else{
-		this.regionWidth = 3 ;
-	} ;
-
-	if( (_regionHeight !== undefined) && (0 < _regionHeight) && (_regionHeight < 10) ){
-		this.regionHeight  = _regionHeight ;
-	}else{
-		this.regionHeight = 3 ;
-	} ;
-
-	this.wholeBoxSize = this.regionWidth * this.regionHeight ;  // 縦or横に並ぶフォームの数
-	this.wholeBoxAmount = this.wholeBoxSize * this.wholeBoxSize ;  // フォームの全体個数
-
-	this.setQuestionArray(_questionArray) ;
+	this.setQuestionArray(_questionArray, _regionWidth, _regionHeight) ;
 } ;
 
 SolveNumberPlace.Solve.ProgressStatus = function(){
@@ -77,6 +69,7 @@ SolveNumberPlace.Solve.AFormStatus = function(_length){
 SolveNumberPlace.Solve.prototype = {
 	/****  メイン部分、ここを実行することで答えを求め始める  ****/
 	mainProcess : function(){
+		"use strict" ;
 		this.progress = new SolveNumberPlace.Solve.ProgressStatus() ;
 		this.isNumberInArray() ;  // this.questionArray の中身をチェックし、数値でないなら undefined を代入
 		this.putInProgressObject(this.questionArray) ;  // this.questionArray を拡張させたものを this.questionArrayObject へ
@@ -98,7 +91,22 @@ SolveNumberPlace.Solve.prototype = {
 	} ,
 
 	/* この関数で問題配列を設定することができる */
-	setQuestionArray : function(_questionArray){
+	setQuestionArray : function(_questionArray, _regionWidth, _regionHeight){
+		if( (_regionWidth !== undefined) && (0 < _regionWidth) && (_regionWidth < 10) ){
+			this.regionWidth  = _regionWidth ;
+		}else{
+			this.regionWidth = 3 ;
+		} ;
+
+		if( (_regionHeight !== undefined) && (0 < _regionHeight) && (_regionHeight < 10) ){
+			this.regionHeight  = _regionHeight ;
+		}else{
+			this.regionHeight = 3 ;
+		} ;
+
+		this.wholeBoxSize = this.regionWidth * this.regionHeight ;  // 縦or横に並ぶフォームの数
+		this.wholeBoxAmount = this.wholeBoxSize * this.wholeBoxSize ;  // フォームの全体個数
+
 		this.questionArray = [] ;
 		if(_questionArray === undefined){
 			console.log("*Error* Question array is NOT exist. test mode starts now.") ;
@@ -124,8 +132,6 @@ SolveNumberPlace.Solve.prototype = {
 
 	/* テスト用の配列 を代入する */
 	assignTestArray : function(){
-		this.regionHeight = 3 ;
-		this.regionWidth  = 3 ;
 		this.questionArray = [
 			 , ,8,2, ,3,1, , ,
 			 , ,6,1, ,5,8, , ,
@@ -275,7 +281,7 @@ SolveNumberPlace.Solve.prototype = {
 	/* 周辺フォームの自分自身との重複を見る */
 	lookOverlapForReduceCandidates : function(){
 		do{
-			// console.log(this.questionArrayObject.candidates) ;  // 経過を表示してみる
+			console.log(this.questionArrayObject.candidates) ;  // 経過を表示してみる
 			var someChanged = false ;
 			for(var y = 0; y < this.wholeBoxSize; ++y){
 				for(var x = 0; x < this.wholeBoxSize; ++x){
@@ -284,18 +290,19 @@ SolveNumberPlace.Solve.prototype = {
 						/* 縦・横・領域内で重複する値を、候補から削る */
 						for(var k = 0; k < this.wholeBoxSize; ++k){
 							/* 横行を見る */
-							if( (this.getTwoDimensionalArray(x, k, this.questionArrayObject.done) === true) && (k !== y) ){
-								if(this.isExistInArray( this.getTwoDimensionalArray(x, k, this.questionArrayObject.number), aroundNumbers) === false){
-									aroundNumbers.push(this.getTwoDimensionalArray(x, k, this.questionArrayObject.number)) ;
-								}
-							}
-							/* 縦列を見る */
 							if( (this.getTwoDimensionalArray(k, y, this.questionArrayObject.done) === true) && (k !== x) ){
 								if(this.isExistInArray( this.getTwoDimensionalArray(k, y, this.questionArrayObject.number), aroundNumbers) === false){
 									aroundNumbers.push(this.getTwoDimensionalArray(k, y, this.questionArrayObject.number)) ;
 								}
 							}
+							/* 縦列を見る */
+							if( (this.getTwoDimensionalArray(x, k, this.questionArrayObject.done) === true) && (k !== y) ){
+								if(this.isExistInArray( this.getTwoDimensionalArray(x, k, this.questionArrayObject.number), aroundNumbers) === false){
+									aroundNumbers.push(this.getTwoDimensionalArray(x, k, this.questionArrayObject.number)) ;
+								}
+							}
 						}
+						// console.log(aroundNumbers) ;
 						/* 領域内を見る */
 						var x2Start = Math.floor(x / this.regionWidth  ) * this.regionWidth ;
 						var y2Start = Math.floor(y / this.regionHeight ) * this.regionHeight ;
@@ -310,7 +317,7 @@ SolveNumberPlace.Solve.prototype = {
 						}
 						/* 候補の値一覧から、aroundNumbers にある値は消去する */
 						// console.log("aroundNumbers : " + aroundNumbers) ;
-						this.questionArrayObject.candidates[x + y * 9] = this.dropArray( this.getTwoDimensionalArray(x, y, this.questionArrayObject.candidates), aroundNumbers ) ;
+						this.questionArrayObject.candidates[x + y * this.wholeBoxSize] = this.dropArray( this.getTwoDimensionalArray(x, y, this.questionArrayObject.candidates), aroundNumbers ) ;
 						/* 一意に絞られた値があるかチェック、あったら代入 */
 						if(this.putUniqueCandidateNumber() === true){
 							someChanged = true ;
@@ -391,7 +398,7 @@ SolveNumberPlace.Solve.prototype = {
 							this.lookOverlapForReduceCandidates() ;
 							if( this.progress.complete === false ){
 								/* 上手く解けないなら一時保存の配列に姿を戻す */
-								console.log("!!!!!") ;
+								console.log("解けない!!!!!戻す!!!!") ;
 								this.questionArrayObject = this.copyFormStatusObject(saveArray) ;
 								--this.progress.changedTimes ;
 								this.progress.error = false ;
@@ -425,26 +432,32 @@ SolveNumberPlace.Solve.prototype = {
 /**********************************************************/
 /*********************   入力のためのフォームを用意する ***/
 SolveNumberPlace.MakeForm = function(_regionWidth, _regionHeight){
-	if(_regionWidth === undefined){
-		this.regionWidth = 3 ;
-	}else{
-		this.regionWidth = _regionWidth ;
-	}
-	if(_regionHeight === undefined){
-		this.regionHeight = 3 ;
-	}else{
-		this.regionHeight = _regionHeight ;
-	}
-
-	this.wholeBoxSize = this.regionHeight * this.regionWidth ;
-	this.wholeBoxAmount = this.wholeBoxSize * this.wholeBoxSize ;
+	this.setRegionSize(_regionWidth, _regionHeight) ;
 } ;
 
 SolveNumberPlace.MakeForm.prototype = {
 	mainProcess : function(){
+		"use strict" ;
+		var outputTextAreaElement = document.getElementById("outputTextArea") ;
+		outputTextAreaElement.value = "" ;
 		this.writeHtml() ;
 	} ,
 
+	setRegionSize : function(_regionWidth, _regionHeight){
+		if(_regionWidth === undefined){
+			this.regionWidth = 3 ;
+		}else{
+			this.regionWidth = _regionWidth ;
+		}
+		if(_regionHeight === undefined){
+			this.regionHeight = 3 ;
+		}else{
+			this.regionHeight = _regionHeight ;
+		}
+		this.wholeBoxSize = this.regionHeight * this.regionWidth ;
+		this.wholeBoxAmount = this.wholeBoxSize * this.wholeBoxSize ;
+	} ,
+	
 	/* フォームと実行ボタンを HTML に書き込む */
 	writeHtml : function(){
 		var formsAreaElement = document.getElementById("inputFormNumberPlace") ;
@@ -466,13 +479,14 @@ SolveNumberPlace.MakeForm.prototype = {
 									   + this.digitOfWholeBoxSize + "\" size=\""
 									   + this.digitOfWholeBoxSize + "\" pattern=\"\\d{"
 									   + this.digitOfWholeBoxSize + "}\" id=\"numberPlaceForm"
-									   + (i * this.wholeBoxSize + j) + "\">") ;
+									   + (i * this.wholeBoxSize + j) + "\" "
+									   + "value=\"\">") ;
 			}
 			stringsInFormsArea += "<br>" ;
 		}
 		
-		stringsInFormsArea += "<input type=\"button\" id=\"submitFormsNumberButton\" name=\"button\" value=\"実行\">" ;
-		stringsInFormsArea += "<input type=\"button\" id=\"deleteFormsNumberButton\" name=\"button\" value=\"消す\">" ;
+		stringsInFormsArea += "<input type=\"button\" id=\"submitFormsNumberButton\" name=\"buttonBelowNumberPlaceForms\" value=\"実行\">" ;
+		stringsInFormsArea += "<input type=\"button\" id=\"deleteFormsNumberButton\" name=\"buttonBelowNumberPlaceForms\" value=\"消す\">" ;
 		stringsInFormsArea += "</form>" ;
 		
 		formsAreaElement.innerHTML = stringsInFormsArea ;
@@ -627,11 +641,11 @@ SolveNumberPlace.MakeForm.prototype = {
 	/* 解答を、テキストエリアやフォームに出力する */
 	outputAnswerToForms : function(){
 		var numberPlaceInputFormsElements = document.getElementsByClassName("numberPlaceForm") ;
-		var inputTextAreaElement = document.getElementById("inputTextArea") ;
+		var outputTextAreaElement = document.getElementById("outputTextArea") ;
 		var outputElement = document.getElementById("output") ;
 		/* 出力エリアを空白で初期化 */
 		var outputString = "" ;
-		inputTextAreaElement.value = outputString ;
+		outputTextAreaElement.value = outputString ;
 		outputElement.innerHTML = outputString ;
 
 		/* 解けたところ、もしくはユーザーが入力した値をフォームに出力 */
@@ -659,7 +673,7 @@ SolveNumberPlace.MakeForm.prototype = {
 				outputString += this.answeredArray.slice( (i * this.wholeBoxSize), ((i+1) * this.wholeBoxSize) ) ;
 				outputString += "\n" ;
 			}
-			inputTextAreaElement.value = outputString ;
+			outputTextAreaElement.value = outputString ;
 			outputElement.innerHTML = outputString.replace(/[\n]/g, "<br>") ;
 		}else{
 			if(this.solveObject.progress.error === true){
@@ -679,7 +693,7 @@ SolveNumberPlace.MakeForm.prototype = {
 					}
 				}
 			}
-			inputTextAreaElement.value = outputString ;
+			outputTextAreaElement.value = outputString ;
 			document.getElementById("output").innerHTML = outputString ;
 		}
 	} ,
