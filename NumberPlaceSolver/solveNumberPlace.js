@@ -7,6 +7,10 @@ window.addEventListener("load", function () {
 	test.setQuestionArray( [7,,,2,,8,,,3,,8,,,1,,,7,,1,,3,,,,2,,9,,6,,,7,,,3,,5,,,4,3,9,,,1,,2,,,6,,,4,,8,,7,,,,1,,2,,9,,,2,,,6,,6,,,5,,3,,,4] ) ;
 	test.mainProcess() ;
 */
+	var test = new SolveNumberPlace.Solve() ;
+	test.setQuestionArray( [,,,7,2,,,,1,,,4,,,6,,2,,,6,,,,,3,,,5,,,,,4,,7,,1,,,,5,,,,9,,9,,6,,,,,5,,,7,,,,,3,,,8,,3,,,9,,,9,,,,1,8,,,] ) ;
+	test.mainProcess() ;
+
 	this.makeForm = new SolveNumberPlace.MakeForm(3, 3) ;
 	this.makeForm.mainProcess() ;
 
@@ -256,10 +260,13 @@ SolveNumberPlace.Solve.prototype = {
 	 *** アルゴリズム的にはメイン部分 ***/
 	reduceCandidates : function(){
 		/* 各フォームごとに、タテヨコ領域内の重複している値を調べ、取り除く */
-		this.lookOverlapForReduceCandidates() ;
+		if( this.lookOverlapForReduceCandidates() === false){
+			return false ;
+		}
 
 		/* すべてが done なら処理は終わり */
-		if(this.progress.complete === true){
+		if(this.isCompleteAnswer() === true){
+			this.progress.complete = true ;
 			return true ;
 		}else{
 			/* 解決できていなかった場合、候補の値の１つを入れてみる */
@@ -269,17 +276,19 @@ SolveNumberPlace.Solve.prototype = {
 			
 			// console.log("難しい問題だね・・・") ;
 			for(var i = FIRST_CHOICE_FROM_X_CANDIDATE; i <= LAST_CHOICE_FROM_X_CANDIDATE; ++i){
-				if( this.tryChoiceCandidate(i) === true ){
+				this.searchFormToTryChoice(i) ;
+				if(this.isCompleteAnswer() === true){
 					this.progress.complete = true ;
-					break ;
+					return true ;
 				}
 			}
 		}
-		return true ;
+		return false ;
 	} ,
 
 	/* 周辺フォームの自分自身との重複を見る */
 	lookOverlapForReduceCandidates : function(){
+		var changedTimes = 0 ;
 		do{
 			console.log(this.questionArrayObject.candidates) ;  // 経過を表示してみる
 			var someChanged = false ;
@@ -318,19 +327,23 @@ SolveNumberPlace.Solve.prototype = {
 						/* 候補の値一覧から、aroundNumbers にある値は消去する */
 						// console.log("aroundNumbers : " + aroundNumbers) ;
 						this.questionArrayObject.candidates[x + y * this.wholeBoxSize] = this.dropArray( this.getTwoDimensionalArray(x, y, this.questionArrayObject.candidates), aroundNumbers ) ;
-						/* 一意に絞られた値があるかチェック、あったら代入 */
-						if(this.putUniqueCandidateNumber() === true){
-							someChanged = true ;
+						/* 一意に絞られた値があるかチェック */
+						var countDefinedForm = this.putUniqueCandidateNumber() ;
+						if(countDefinedForm === false){
+							/* 候補数が 0 になってしまった状態。エラーを返す */
+							return false ;
+						}else{
+							if(countDefinedForm > 0){
+								someChanged = true ;
+								++changedTimes ;
+							}
 						}
 					}
 				}
 			}
 		}while(someChanged === true) ;
 
-		if(this.isCompleteAnswer() === true){
-			this.progress.complete = true ;
-		}
-		return this.progress.complete ;
+		return changedTimes ;
 	} ,
 
 	/* targetArray から dropperArray と重複する値を引き抜く */
@@ -352,17 +365,22 @@ SolveNumberPlace.Solve.prototype = {
 
 	/* 候補の値が１つに絞られたら、その値を代入し、changedTimes を +1 */
 	putUniqueCandidateNumber : function(){
-		var pushedFlag = false ;
+		var putTimes = 0 ;
 		for(var i = 0; i < this.wholeBoxAmount; ++i){
-			if((this.questionArrayObject.done[i] === false) && (this.questionArrayObject.candidates[i].length === 1)){
-				this.questionArrayObject.number[i] = Number(this.questionArrayObject.candidates[i][0]) ;
-				this.questionArrayObject.done[i] = true ;
-				this.questionArrayObject.candidates[i] = undefined ;
-				++this.progress.changedTimes ;
-				pushedFlag = true ;
+			if(this.questionArrayObject.done[i] === false){
+				if(this.questionArrayObject.candidates[i].length === 1){
+					this.questionArrayObject.number[i] = Number(this.questionArrayObject.candidates[i][0]) ;
+					this.questionArrayObject.done[i] = true ;
+					this.questionArrayObject.candidates[i] = undefined ;
+					++this.progress.changedTimes ;
+					++putTimes ;
+				}else if(this.questionArrayObject.candidates[i].length === 0){
+					/* 候補の数が 0 個になっていたら、それはエラーなので false を返す */
+					return false ;
+				}
 			}
 		}
-		return pushedFlag ;
+		return putTimes ;
 	} ,
 
 	/* 全てが done か調べる */
@@ -375,45 +393,69 @@ SolveNumberPlace.Solve.prototype = {
 		return true ;
 	} ,
 
-	/* targetCandidatesAmount 個に候補が絞れてる場合は、ためしに入れてみる */
-	tryChoiceCandidate : function(targetFormCandidatesAmount){
+	/* targetCandidatesAmount 個に候補が絞れてるフォームがあるか調べる */
+	searchFormToTryChoice : function(targetFormCandidatesAmount){
+		var saveArray = [] ; // 配列保存用の配列
 		console.log(targetFormCandidatesAmount + " 個の候補から選ぶ") ;
 		do{
+			var tryFlag = false ;
 			var previousChangedTimes = this.progress.changedTimes ;
 
 			for(var i = 0; i < this.wholeBoxAmount; ++i){
 				if( this.questionArrayObject.done[i] === false ){
 					var candidatesLength = this.questionArrayObject.candidates[i].length ;
-					if( candidatesLength <= targetFormCandidatesAmount ){
-						var saveArray = this.copyFormStatusObject(this.questionArrayObject) ;
-						// console.log("save = " + saveArray) ;
-						for(var k = 0; k < candidatesLength; ++k){
-							console.log(k + " 番目の候補値を入れてみる") ;
-							/* 候補を入れてみる前に、一時的に配列を保存しておく */
-							/* 候補のうちのひとつ、 k 番目の候補を入れてみる */
-							++this.progress.changedTimes ;
-							this.questionArrayObject.number[i] = this.questionArrayObject.candidates[i][k] ;
-							this.questionArrayObject.done[i] = true ;
-							this.questionArrayObject.candidates[i] = undefined ;
-							this.lookOverlapForReduceCandidates() ;
-							if( this.progress.complete === false ){
-								/* 上手く解けないなら一時保存の配列に姿を戻す */
-								console.log("解けない!!!!!戻す!!!!") ;
-								this.questionArrayObject = this.copyFormStatusObject(saveArray) ;
-								--this.progress.changedTimes ;
-								this.progress.error = false ;
-								this.progress.errorPlace = [] ;
-							}else{
-								return true ;
-							}
+					if( candidatesLength <= targetFormCandidatesAmount && candidatesLength > 1 ){
+						tryFlag = true ;
+						if( this.tryChoiceCandidate(i, saveArray) === "restart" ){
+							/* for 文を抜け、また左上のフォームから条件に合うものを検索 */
+							break ;
 						}
 					}
 				}
 			}
-		}while( previousChangedTimes - this.progress.changedTimes > 0 ) ;
-		return false ;
+		}while(tryFlag === true) ;
 	} ,
 
+	/* 条件に合うフォームであれば候補の一番目を入れてみる */
+	tryChoiceCandidate : function(targetFormIndex, saveArray){
+		/* 候補を入れてみる前に、一時的に questionArray の現状を保存しておく */
+		saveArray.unshift( this.copyFormStatusObject(this.questionArrayObject) ) ;
+		console.log(saveArray[0].candidates) ;
+		/* 候補のうちのひとつ、 0 番目の候補を入れてみる */
+		console.log("this.questionArrayObject.candidates[" + targetFormIndex + "][0] = " + this.questionArrayObject.candidates[targetFormIndex][0] ) ;
+		++this.progress.changedTimes ;
+		this.questionArrayObject.number[targetFormIndex] = this.questionArrayObject.candidates[targetFormIndex][0] ;
+		this.questionArrayObject.done[targetFormIndex] = true ;
+		this.questionArrayObject.candidates[targetFormIndex] = undefined ;
+		/* オーバーラップ消去をおこなう */
+		var countDefinedForm = this.lookOverlapForReduceCandidates() ;
+		if(countDefinedForm === false || countDefinedForm === 0){
+			/* オーバーラップ消去法で何も成果が無い、もしくは
+			 * 候補数が 0 のフォームを作ってしまったときは、保存したものに戻し、
+			 * 入れてみた値を候補から外す */
+			console.log("解けない!!!!!戻す!!!! " + saveArray.length) ;
+			this.questionArrayObject = this.copyFormStatusObject(saveArray[0]) ;
+			saveArray.shift() ;
+			this.questionArrayObject.candidates[targetFormIndex].shift() ;
+			/* 削除によって候補が一意になったなら代入 */
+			if(this.questionArrayObject.candidates[targetFormIndex].length === 1){
+				this.questionArrayObject.number[targetFormIndex] = this.questionArrayObject.candidates[targetFormIndex][0] ;
+				this.questionArrayObject.done[targetFormIndex] = true ;
+				this.questionArrayObject.candidates[targetFormIndex] = undefined ;
+				/* この関数を抜け、再び左上から条件にあたるフォームを探す */
+				this.lookOverlapForReduceCandidates() ;
+				return "restart" ;
+			}else{
+				--this.progress.changedTimes ;
+				/* 次の候補を試してみる */
+				return "restart" ;
+			}
+		}else{
+			/* オーバーラップ消去法で成果があったとき、この関数を抜け、再び条件にあたるフォームを探す */
+				return "restart" ;
+		}
+	} ,
+	
 	/* AFormStatus Object のコピーを作る */
 	copyFormStatusObject : function(_formStatusObject){
 		var saveArray = new SolveNumberPlace.Solve.AFormStatus(this.wholeBoxAmount) ;
