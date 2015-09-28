@@ -722,6 +722,8 @@ SolveNumberPlace.MakeForm.prototype = {
 			for(var i = 0; i < numberPlaceElements.length; ++i){
 				numberPlaceElements[i].value = "" ;
 			}
+			document.getElementById("outputTextArea").value = "" ;
+			document.getElementById("output").innerHTML = "リセットされました" ;
 		}
 	}
 } ;
