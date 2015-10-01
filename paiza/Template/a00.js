@@ -1,5 +1,6 @@
 
 window.addEventListener("load", function () {
+	console.time("Loading Time") ;
 	
 	var submitButtonEle = document.getElementById("doItButton") ;
 	submitButtonEle.addEventListener("click", function(){
@@ -19,34 +20,35 @@ window.addEventListener("load", function () {
 				return (-1) ;
 			}
 		}
-		
-		var outputEle = document.getElementById("output") ;
-		outputEle.innerHTML = "" ;
+		console.log("chunk = " + chunk) ;
+
 		
 		/* 入力は入力フォームに入れるか、html の miku div 内に入れる */
 		/* 以下をコピーする */
 		
 		/* 2015/         *
-		 * A00 :         */
-		chunk = chunk.replace(/([ \t]{1,})|\s+$/gim, "") ; // 半角スペースとTab、無駄な改行は削る
-		var lines = chunk.toString().split("\n") ;
-		// console.log("chunk = " + chunk) ;
+		 * A0 :         */
+		/* 末尾の無駄な半角スペースとTab、無駄な改行は削る */
+		chunk = chunk.replace(/([ \t]{1,}|\s)+$/gm, "") ;
+		var inputNumber = chunk.toString().split(/[ \n]/) ;
 		
-		for(var i = 0; i < lines.length ; ++i){
-			var num = lines[i].match(/[0-9]+/) ;
-			num = parseInt(num, 10) ;
-			console.log(num) ;
+		for(var i = 0; i < inputNumber.length ; ++i){
+			inputNumber[i] = parseFloat(inputNumber[i].match(/[0-9]+/)) ;
 		}
+
+
 		
 		/* 以上をコピーする */
+		var outputElement = document.getElementById("output") ;
+		outputElement.innerHTML = "something" ;  // outputElementment に出力
 		
-		outputEle.innerHTML = chunk ;
-		
+		console.log(inputNumber) ;
 		console.log("end") ;
-		
+
 		return 0 ;
 	} ;
 	
 	doIt() ;
-	
+	console.timeEnd("Loading Time") ;
+
 }, false) ;
