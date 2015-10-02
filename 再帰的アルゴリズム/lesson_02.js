@@ -34,13 +34,13 @@ window.addEventListener("load", function () {
 		var NODE_QUANTITY = 7 ;  // 頂点の数
 
 		/* A -> G へ向かえる道を探索する */
-		var arriveTable =  [ [ 1,  2, -1, -1], // A : 0
+		var arriveTable =  [ [ 1,  2, -1    ], // A : 0
 							 [ 0,  2,  3, -1], // B : 1
 							 [ 0,  1,  4, -1], // C : 2
 							 [ 1,  4,  5, -1], // D : 3
 							 [ 2,  3,  6, -1], // E : 4
-							 [ 3, -1, -1, -1], // F : 5
-							 [ 4, -1, -1, -1]  // G : 6
+							 [ 3, -1        ], // F : 5
+							 [ 4, -1        ]  // G : 6
 						   ] ;
 
 		var answer = "" ;
