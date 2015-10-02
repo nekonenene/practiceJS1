@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+
+<html>
+
+	<head>
+		<meta name="Author" content="nekonenene">
+		<meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
+		<link rel="stylesheet" type="text/css" href="top.css">
+
+		<meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *">
+		<meta name="format-detection" content="telephone=no">
+		<meta name="msapplication-tap-highlight" content="no">
+		<meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
+
+
+		<title>再帰型アルゴリズムの練習</title>
+
+	</head>
+
+	<body>
+		<div id="site-box">
+			<div id="site-main">
+				<h1 id="lessonTitle">Hello World!!! </h1>
+				<p>
+					JavaScriptの世界にようこそ
+				</p>
+
+				<pre id="miku">
+
+				</pre>
+
+				<h2>入力欄</h2>
+				<p>
+					<form id="inputY" accept-charset="utf-8" style="margin:20px 15px;">
+						<textarea id="inputArea" placeholder="ここに入力してね" cols="60"  rows="8"></textarea><br>
+						<input type="button" id="doItButton" name="button" value="実行" style="margin:3px 0;">
+					</form>
+				</p>
+
+				<h2>出力</h2>
+				<p id="output">
+					loading...2
+				</p>
+
+				<h3>ランダム</h3>
+				<p>
+					<form id="randomNum" name="randomNum" style="margin:20px 15px;">
+						横の個数：
+						<input type="text" name="inputForRandNum" style="width:8ch" value="50">
+						タテの個数：
+						<input type="text" name="inputForRandNum" style="width:8ch" value="100">
+						<br>
+						最小値：
+						<input type="text" name="inputForRandNum" style="width:8ch" value="-100">
+						最大値:
+						<input type="text" name="inputForRandNum" style="width:8ch" value="100">
+						<input type="button" id="randNumDo" name="button" value="実行" style="margin:3px 5px;"><br>
+						<textarea id="randOutputArea" placeholder="ここに出力されます" cols="60"  rows="6" readonly></textarea><br>
+					</form>
+				</p>
+				<p id="randNumOutput">
+				</p>
+				<script type="text/javascript" src="random_number.js" charset="utf-8"></script>
+				<script type="text/javascript" src="lesson_02.js" charset="utf-8"></script>
+
+			</div>
+		</div>
+
+	</body>
+
+</html>
