@@ -20,10 +20,12 @@ window.addEventListener("load", function () {
 				return (-1) ;
 			}
 		}
-		console.log("chunk = " + chunk) ;
-
+		
 		/* 末尾の無駄な半角スペースとTab、無駄な改行は削る */
 		chunk = chunk.replace(/([ \t]{1,}|\s)+$/gm, "") ;
+		/* 行頭の空白成分を削る */
+		chunk = chunk.replace(/^\s+/gm, "") ;
+		console.log("chunk = " + chunk) ;
 		
 		/* 入力は入力フォームに入れるか、html の miku div 内に入れる */
 		/* 以下をコピーする */
@@ -35,10 +37,10 @@ window.addEventListener("load", function () {
 		for(var i = 0; i < inputNumber.length ; ++i){
 			inputNumber[i] = Number(inputNumber[i]) ;
 		} ;
-
+		
 		var answer = "" ;
-
-
+		
+		
 		
 		/* 以上をコピーする */
 		var outputElement = document.getElementById("output") ;
@@ -46,11 +48,11 @@ window.addEventListener("load", function () {
 		
 		console.log(inputNumber) ;
 		console.log("end") ;
-
+		
 		return 0 ;
 	} ;
 	
 	doIt() ;
 	console.timeEnd("Loading Time") ;
-
+	
 }, false) ;
